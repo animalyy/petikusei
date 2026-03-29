@@ -1,0 +1,1824 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover" />
+<title>モコロンの草原</title>
+<style>
+:root{
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --ui-bg: rgba(255,255,255,.94);
+  --ui-line: rgba(16,34,58,.08);
+  --ui-text: #1e3957;
+  --grass-1:#94c56a;
+  --grass-2:#6ea44a;
+  --grass-3:#4f7e35;
+  --sky-top:#89bbe9;
+  --sky-mid:#dceeff;
+  --sky-low:#f6ecd2;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none}
+html,body{margin:0;height:100%;overflow:hidden;background:#8db7df;font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans",sans-serif}
+#app{position:fixed;inset:0;overflow:hidden;background:linear-gradient(180deg,var(--sky-top) 0%,var(--sky-mid) 46%,var(--sky-low) 64%,var(--grass-1) 65%,var(--grass-2) 80%,var(--grass-3) 100%)}
+#skyGlow{position:absolute;inset:0;background:radial-gradient(140% 70% at 50% 8%, rgba(255,255,255,.82), rgba(255,255,255,0) 50%)}
+.cloud{position:absolute;border-radius:999px;background:rgba(255,255,255,.72);filter:blur(1px);animation:cloudDrift linear infinite}
+.cloud:before,.cloud:after{content:"";position:absolute;border-radius:999px;background:inherit}
+.cloud:before{width:60%;height:100%;left:12%;top:-42%}
+.cloud:after{width:45%;height:90%;right:10%;top:-20%}
+#cloud1{width:140px;height:34px;left:-160px;top:12vh;animation-duration:42s}
+#cloud2{width:110px;height:28px;left:-140px;top:20vh;animation-duration:55s;animation-delay:-12s;opacity:.7}
+#cloud3{width:180px;height:42px;left:-220px;top:8vh;animation-duration:64s;animation-delay:-24s;opacity:.55}
+@keyframes cloudDrift{from{transform:translateX(0)}to{transform:translateX(calc(100vw + 320px))}}
+#farHills{position:absolute;left:-10%;right:-10%;bottom:38vh;height:24vh;background:
+  radial-gradient(70% 120% at 20% 100%, #7eab61 0 54%, transparent 55%),
+  radial-gradient(86% 130% at 56% 100%, #86b46a 0 55%, transparent 56%),
+  radial-gradient(72% 118% at 92% 100%, #739b57 0 54%, transparent 55%);
+  opacity:.98}
+#midHills{position:absolute;left:-8%;right:-8%;bottom:36vh;height:28vh;background:
+  radial-gradient(84% 130% at 16% 100%, #739e52 0 54%, transparent 55%),
+  radial-gradient(88% 140% at 49% 100%, #6b964c 0 54%, transparent 55%),
+  radial-gradient(76% 126% at 84% 100%, #628c45 0 54%, transparent 55%)}
+#soilBand{position:absolute;left:0;right:0;bottom:0;height:48vh;background:
+  linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(53,73,40,.10) 22%, rgba(34,49,27,.22) 100%),
+  radial-gradient(34% 12% at 52% 64%, rgba(34,49,27,.19), transparent 62%),
+  radial-gradient(90% 22% at 20% 88%, rgba(94,67,35,.24), transparent 56%),
+  radial-gradient(70% 18% at 74% 92%, rgba(86,60,30,.18), transparent 55%)}
+#fence{position:absolute;left:-4%;right:-4%;bottom:33vh;height:58px;opacity:.9}
+.fenceRail{position:absolute;left:0;right:0;height:7px;background:#8e6b45;border-radius:999px;box-shadow:0 1px 0 rgba(255,255,255,.18) inset}
+.fenceRail.r1{top:10px}.fenceRail.r2{top:30px}
+.post{position:absolute;bottom:0;width:11px;height:58px;background:linear-gradient(180deg,#9d774a,#7b5f3d);border-radius:4px}
+#barn{position:absolute;right:9vw;bottom:20vh;width:86px;height:54px;opacity:.38;filter:blur(.2px)}
+#barn:before{content:"";position:absolute;left:10px;right:10px;bottom:0;height:34px;background:#7f5b3a;border-radius:4px 4px 2px 2px}
+#barn:after{content:"";position:absolute;left:4px;right:4px;top:0;height:28px;background:#6f4932;clip-path:polygon(50% 0,100% 100%,0 100%)}
+#grassFront{position:absolute;left:0;right:0;bottom:0;height:34vh;overflow:hidden}
+.blade{position:absolute;bottom:0;width:3px;border-radius:3px 3px 0 0;background:linear-gradient(180deg,#a8e077,#5e9242);transform-origin:bottom center;animation:sway 3.6s ease-in-out infinite}
+.blade.dark{background:linear-gradient(180deg,#88cc5d,#487732)}
+.blade.wheat{background:linear-gradient(180deg,#efe38e,#b69d46)}
+@keyframes sway{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(5.5deg)}}
+#weather{position:absolute;top:calc(14px + var(--safe-top));left:14px;padding:8px 12px;border-radius:999px;background:rgba(255,255,255,.78);color:#243b57;font-size:14px;font-weight:900;border:1px solid rgba(255,255,255,.48);backdrop-filter:blur(10px);z-index:50}
+#groundHint{position:absolute;top:calc(58px + var(--safe-top));left:14px;z-index:54;opacity:0;transform:translateY(-4px);transition:opacity .2s ease,transform .2s ease;pointer-events:none;max-width:min(62vw,280px)}
+#groundHint.show{opacity:1;transform:translateY(0)}
+#groundHintGlow{display:none}
+#groundHintLabel{display:inline-block;padding:2px 2px 0;color:#203854;font-size:24px;font-weight:900;line-height:1.2;text-shadow:0 1px 0 rgba(255,255,255,.72),0 0 10px rgba(255,255,255,.18)}
+#cpu{display:none}
+#stage{position:absolute;inset:0;z-index:20}
+#shadow{position:absolute;left:50%;bottom:11.8vh;width:170px;height:30px;transform:translateX(-50%);background:radial-gradient(circle, rgba(0,0,0,.2) 0%, rgba(0,0,0,.08) 42%, rgba(0,0,0,0) 70%);border-radius:50%;filter:blur(2px);transition:all .55s cubic-bezier(.34,1.56,.64,1)}
+#petWrap{position:absolute;left:50%;bottom:12.4vh;transform:translateX(-50%) scale(4.2);transform-origin:50% 100%;transition:left .55s cubic-bezier(.34,1.56,.64,1),bottom .55s cubic-bezier(.34,1.56,.64,1),transform .55s cubic-bezier(.34,1.56,.64,1)}
+canvas#pet{display:block;image-rendering:pixelated;image-rendering:crisp-edges;width:96px;height:96px;filter:none !important;-webkit-transform:translateZ(0);transform:translateZ(0)}
+#hitArea{position:absolute;left:50%;bottom:8.8vh;width:280px;height:320px;transform:translateX(-50%);z-index:40}
+#bubble{position:absolute;left:50%;bottom:calc(12.4vh + 350px);transform:translateX(-50%) scale(.72);padding:10px 18px;border-radius:24px;background:rgba(255,255,255,.96);color:#314f69;font-size:22px;font-weight:800;box-shadow:0 12px 30px rgba(0,0,0,.12);opacity:0;transition:opacity .24s ease,transform .24s ease;pointer-events:none;z-index:60;max-width:74vw;text-align:center}
+#bubble.show{opacity:1;transform:translateX(-50%) scale(1) translateY(-12px)}
+#actions{position:absolute;left:16px;right:16px;bottom:calc(16px + var(--safe-bottom));display:grid;grid-template-columns:repeat(4,1fr);gap:12px;z-index:80}
+button{border:0;border-radius:22px;padding:18px 8px;background:var(--ui-bg);color:var(--ui-text);font-size:15px;font-weight:900;box-shadow:0 7px 0 rgba(0,0,0,.06);border:1px solid var(--ui-line);transition:.12s}
+button:active{transform:translateY(4px);box-shadow:0 2px 0 rgba(0,0,0,.06)}
+button .icon{display:block;font-size:22px;margin-bottom:4px;line-height:1}
+#reportDrawer{position:absolute;inset:0;display:flex;align-items:stretch;justify-content:stretch;padding:0;background:rgba(11,18,28,.52);backdrop-filter:blur(8px);color:#1f3853;opacity:0;pointer-events:none;transition:.22s ease;z-index:140}
+#reportDrawer.show{opacity:1;pointer-events:auto}
+#reportCard{width:100vw;height:calc(100vh - 76px - var(--safe-top) - var(--safe-bottom));margin-top:calc(38px + var(--safe-top));margin-bottom:calc(38px + var(--safe-bottom));overflow:auto;background:rgba(255,255,255,.985);border-radius:18px;padding:28px 22px 34px;box-shadow:none;border:0;font-family:'Hiragino Sans','Yu Gothic UI','Yu Gothic',sans-serif}
+#reportHint{margin-top:12px;font-size:14px;color:#5a7088;text-align:center}
+#reportShort{font-weight:900;color:#254a71;margin-bottom:14px;font-size:24px;line-height:1.5;font-family:'Hiragino Sans','Yu Gothic UI','Yu Gothic',sans-serif}
+#reportDetail{opacity:.92;font-size:19px;line-height:1.75;white-space:pre-wrap}
+
+#historyPanel{position:absolute;inset:0;background:rgba(11,18,28,.48);backdrop-filter:blur(8px);z-index:145;opacity:0;pointer-events:none;transition:.22s ease;display:flex;align-items:center;justify-content:center;padding:24px}
+#historyPanel.show{opacity:1;pointer-events:auto}
+#historyCard{width:100vw;height:calc(100vh - 76px - var(--safe-top) - var(--safe-bottom));margin-top:calc(38px + var(--safe-top));margin-bottom:calc(38px + var(--safe-bottom));overflow:auto;background:rgba(255,255,255,.985);border-radius:18px;padding:28px 22px 34px;box-shadow:none;border:0;font-family:'Hiragino Sans','Yu Gothic UI','Yu Gothic',sans-serif}
+#historyTitle{font-size:24px;font-weight:900;color:#254a71;margin-bottom:16px;line-height:1.45}
+.historyItem{padding:12px 10px;border-radius:16px;background:rgba(223,238,252,.46);margin-bottom:10px;border:1px solid rgba(37,74,113,.08)}
+.historyItem .hs{font-size:18px;font-weight:800;color:#254a71;margin-bottom:8px;line-height:1.5}
+.historyItem .hd{font-size:18px;line-height:1.85;color:#2d4259;white-space:pre-wrap}
+#historyHint{font-size:12px;color:#5a7088;text-align:center;margin-top:10px}
+
+
+.star{position:absolute;background:#fff;border-radius:50%;opacity:0;animation:twinkle var(--d) ease-in-out infinite;z-index:8;pointer-events:none}
+@keyframes twinkle{0%,100%{opacity:0;transform:scale(.5)}50%{opacity:.85;transform:scale(1.2)}}
+@keyframes cloudPass{0%,100%{filter:brightness(1)}50%{filter:brightness(.96)}}
+.cloud-pass{animation:cloudPass 30s ease-in-out infinite}
+
+
+#summaryPanel{position:absolute;inset:0;background:rgba(11,18,28,.48);backdrop-filter:blur(8px);z-index:146;opacity:0;pointer-events:none;transition:.22s ease;display:flex;align-items:center;justify-content:center;padding:24px}
+#summaryPanel.show{opacity:1;pointer-events:auto}
+#summaryCard{width:100vw;height:calc(100vh - 76px - var(--safe-top) - var(--safe-bottom));margin-top:calc(38px + var(--safe-top));margin-bottom:calc(38px + var(--safe-bottom));overflow:auto;background:rgba(255,255,255,.985);border-radius:18px;padding:28px 22px 34px;box-shadow:none;border:0;font-family:'Hiragino Sans','Yu Gothic UI','Yu Gothic',sans-serif}
+#summaryTitle{font-size:24px;font-weight:900;color:#254a71;margin-bottom:16px;line-height:1.45}
+.summaryGrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.todayGrid{grid-template-columns:1fr}
+.summaryItem{word-break:keep-all;overflow-wrap:break-word}
+.summaryBlock{padding:12px 10px;border-radius:16px;background:rgba(223,238,252,.46);border:1px solid rgba(37,74,113,.08);overflow:hidden}
+.summaryHead{font-size:18px;font-weight:900;color:#254a71;margin-bottom:8px;line-height:1.5}
+.summaryItem{font-size:18px;line-height:1.85;color:#2d4259;margin:4px 0}
+.newTag{display:inline-block;margin-left:6px;padding:1px 6px;border-radius:999px;background:#fff1b8;color:#8a6500;font-size:11px;font-weight:900;vertical-align:middle}
+.summaryDist{font-size:24px;font-weight:900;color:#254a71;line-height:1.5}
+.summarySub{font-size:15px;color:#5a7088;margin-top:6px;line-height:1.7}
+#summaryHint{font-size:12px;color:#5a7088;text-align:center;margin-top:12px}
+
+
+#topNav{position:absolute;top:calc(14px + var(--safe-top));right:14px;display:flex;align-items:center;gap:8px;z-index:130}
+#topNav button{position:static !important;display:block;padding:8px 13px;border-radius:999px;background:rgba(255,255,255,.84);color:#1e3957;font-size:13px;font-weight:900;box-shadow:0 3px 10px rgba(0,0,0,.09);border:1px solid rgba(16,34,58,.08);backdrop-filter:blur(10px);margin:0}
+#topNav button:active{transform:translateY(2px);box-shadow:0 1px 4px rgba(0,0,0,.08)}
+button.dim{opacity:.38}
+
+
+#ritualPanel{position:absolute;inset:0;background:rgba(11,18,28,.36);backdrop-filter:blur(6px);z-index:147;opacity:0;pointer-events:none;transition:.22s ease;display:flex;align-items:flex-end;justify-content:center;padding:18px}
+#ritualPanel.show{opacity:1;pointer-events:auto}
+#ritualCard{width:100vw;height:calc(100vh - 76px - var(--safe-top) - var(--safe-bottom));margin-top:calc(38px + var(--safe-top));margin-bottom:calc(38px + var(--safe-bottom));overflow:auto;background:rgba(255,255,255,.985);border-radius:18px;padding:28px 22px 34px;box-shadow:none;border:0;font-family:'Hiragino Sans','Yu Gothic UI','Yu Gothic',sans-serif}
+#ritualTitle{font-size:24px;font-weight:900;color:#254a71;margin-bottom:14px;line-height:1.45}
+#ritualLead{font-size:20px;line-height:1.95;color:#2d4259;white-space:pre-wrap}
+#ritualAction{margin-top:18px;width:100%;border:0;border-radius:18px;padding:18px 12px;background:#eef6ff;color:#1e3957;font-size:20px;font-weight:900;box-shadow:0 6px 0 rgba(0,0,0,.05);border:1px solid rgba(16,34,58,.08)}
+#ritualHint{margin-top:10px;font-size:12px;color:#5a7088;text-align:center}
+
+
+#tutorialOverlay{position:fixed;inset:0;z-index:200;background:rgba(11,18,28,.72);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;padding:28px;opacity:0;transition:opacity .4s ease;pointer-events:none}
+#tutorialCard{width:100vw;height:calc(100vh - 76px - var(--safe-top) - var(--safe-bottom));margin-top:calc(38px + var(--safe-top));margin-bottom:calc(38px + var(--safe-bottom));overflow:auto;background:rgba(255,255,255,.985);border-radius:18px;padding:32px 24px 28px;box-shadow:none;border:0;text-align:center;font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans',sans-serif}
+#tutorialIcon{font-size:52px;margin-bottom:14px}
+#tutorialTitle{font-size:26px;font-weight:900;color:#254a71;margin-bottom:14px;line-height:1.5}
+#tutorialBody{font-size:20px;color:#3a5870;line-height:1.95;margin-bottom:28px;white-space:pre-wrap}#tutorialBody strong{color:#254a71;font-weight:900}
+#tutorialDots{display:flex;justify-content:center;gap:8px;margin-bottom:20px}
+#tutorialNext{width:100%;padding:18px;border:0;border-radius:18px;background:#254a71;color:#fff;font-size:20px;font-weight:900;box-shadow:0 6px 0 rgba(0,0,0,.12);cursor:pointer}
+#foodMenuOverlay{position:absolute;inset:0;z-index:148;background:rgba(11,18,28,.48);backdrop-filter:blur(8px);display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:.22s ease}
+#foodMenuOverlay.show{opacity:1;pointer-events:auto}
+#foodMenuSheet{width:100vw;height:calc(100vh - 76px - var(--safe-top) - var(--safe-bottom));margin-top:calc(38px + var(--safe-top));margin-bottom:calc(38px + var(--safe-bottom));background:rgba(255,255,255,.985);border-radius:18px;padding:16px 0 24px;box-shadow:none;overflow:hidden;display:flex;flex-direction:column}
+#foodMenuHandle{width:40px;height:4px;border-radius:999px;background:rgba(0,0,0,.12);margin:0 auto 12px}
+#foodMenuTitle{font-size:22px;font-weight:900;color:#254a71;text-align:center;margin-bottom:8px;line-height:1.5}
+#foodMenuSub{font-size:16px;color:#7a9ab5;text-align:center;margin-bottom:14px;line-height:1.7}
+#foodMenuList{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;padding:0 18px;overflow-y:auto;flex:1;-webkit-overflow-scrolling:touch}
+.foodItem{border:0;border-radius:18px;padding:16px 10px;background:#f2f8ff;color:#234a67;font-size:17px;font-weight:800;display:flex;flex-direction:column;align-items:center;gap:6px;border:1px solid rgba(16,34,58,.08);line-height:1.6}
+.foodItem .emo{font-size:30px;line-height:1}
+
+</style>
+</head>
+<body>
+
+<div id="tutorialOverlay">
+  <div id="tutorialCard">
+    <div id="tutorialIcon">🌿</div>
+    <div id="tutorialTitle"></div>
+    <div id="tutorialBody"></div>
+    <div id="tutorialDots"></div>
+    <button id="tutorialNext">つぎへ</button>
+  </div>
+</div>
+
+<div id="app">
+  <div id="skyGlow"></div>
+  <div id="stars"></div>
+  <div class="cloud" id="cloud1"></div>
+  <div class="cloud" id="cloud2"></div>
+  <div class="cloud" id="cloud3"></div>
+  <div id="farHills"></div>
+  <div id="midHills"></div>
+  <div id="barn"></div>
+  <div id="fence"><div class="fenceRail r1"></div><div class="fenceRail r2"></div></div>
+  <div id="soilBand"></div>
+  <div id="grassFront"></div>
+  <div id="weather">晴れ</div>
+  <div id="cpu">今日は静かな風が吹いています</div>
+  <div id="stage">
+    <div id="shadow"></div>
+    <div id="petWrap"><canvas id="pet" width="96" height="96" style="display:block;image-rendering:pixelated;image-rendering:crisp-edges;width:96px;height:96px;filter:none" aria-label="モコロン"></canvas></div>
+    <div id="hitArea"></div>
+    <div id="bubble"></div>
+  </div>
+  <div id="reportDrawer"><div id="reportCard"><div id="reportShort"></div><div id="reportDetail"></div><div id="reportHint">画面をタップすると閉じます</div></div></div>
+  <div id="topNav">
+    <button id="btnLastReport">📖</button>
+    <button id="historyBtn">記録</button>
+  </div>
+  <div id="groundHint" aria-hidden="true">
+    <div id="groundHintGlow"></div>
+    <div id="groundHintLabel"></div>
+  </div>
+  <div id="historyPanel"><div id="historyCard"><div id="historyTitle">これまでの記録</div><div id="historyList"></div><div id="historyHint">画面をタップすると閉じます</div></div></div>
+  <div id="summaryPanel"><div id="summaryCard"><div id="summaryTitle">今日のまとめ</div><div id="summaryBody"></div><div id="summaryHint">画面をタップすると閉じます</div></div></div>
+  <div id="ritualPanel"><div id="ritualCard"><div id="ritualTitle">まずはこれ</div><div id="ritualLead"></div><button id="ritualAction">やってみる</button><div id="ritualHint">画面の外側をタップすると閉じます</div></div></div>
+  
+  <div id="foodMenuOverlay">
+    <div id="foodMenuSheet">
+      <div id="foodMenuHandle"></div>
+      <div id="foodMenuTitle">ごはんをえらぶ</div>
+      <div id="foodMenuSub">今のモコロンに合わせて選べます</div>
+      <div id="foodMenuList"></div>
+    </div>
+  </div>
+
+  <div id="actions">
+    <button id="btnPet"><span class="icon">👋</span>なでる</button>
+    <button id="btnFeed"><span class="icon">🍎</span>ごはん</button>
+    <button id="btnWipe"><span class="icon">🧼</span>ふく</button>
+    <button id="btnMofu"><span class="icon">🌟</span>もふもふ</button>
+  </div>
+</div>
+<script>
+const cvs=document.getElementById('pet'); const ctx=cvs.getContext('2d');
+function setupCanvas(){
+  const dpr = window.devicePixelRatio || 1;
+  const logicalSize = 96;
+  const drawingSize = 192;
+  const scale = dpr * (drawingSize / logicalSize);
+  cvs.width = Math.round(logicalSize * scale);
+  cvs.height = Math.round(logicalSize * scale);
+  ctx.setTransform(scale,0,0,scale,0,0);
+  ctx.imageSmoothingEnabled = false;
+}
+setupCanvas();
+window.addEventListener('resize', setupCanvas);
+let C={out:'#193560',body:'#ffffff',bodyShadow:'#deefff',bodyLow:'#cce5fb',earPink:'#ffd0dc',cheek:'#ffb6c2',eye:'#193560',eyeHi:'#ffffff',eyeWarm:'#ffbd6a',toe:'#ffd0dc',accent:'#9fd8ff',dirt:'#9a7855',dull:'#87a5be',shine:'#fff1a9'};
+const WHO=[{name:'スズメのジョイ',zone:['草原','自然']},{name:'ミミズのニョロ',zone:['自然']},{name:'猫のミケ',zone:['草原','自然']},{name:'近所のお婆さんサトコ',zone:['草原']},{name:'警備員のお爺さんシズオ',zone:['草原']},{name:'白い影のコロ',zone:['草原','自然']}];
+const WHERE=[{name:'寝草のくぼみ',zone:'草原'},{name:'風見の坂',zone:'草原'},{name:'牧場の柵のそば',zone:'草原'},{name:'一本木のかげ',zone:'自然'},{name:'ぬれ土のくぼみ',zone:'自然'}];
+const WHAT=[{label:'風に揺れる草を見ていた',category:'観察',zones:['草原']},{label:'小さな影を目で追っていた',category:'観察',zones:['草原','自然']},{label:'同じ場所を何度も気にしていた',category:'観察',zones:['草原','自然']},{label:'風の通り道をたどっていた',category:'探索',zones:['草原']},{label:'草むらを行き来していた',category:'探索',zones:['草原','自然']},{label:'見たことのない匂いを追っていた',category:'探索',zones:['草原','自然']},{label:'ジョイを見かけて追いかけた',category:'交流',zones:['草原','自然'],who:'スズメのジョイ'},{label:'サトコに遠くから見守られた',category:'交流',zones:['草原'],who:'近所のお婆さんサトコ'},{label:'シズオに気づかれて立ち止まった',category:'交流',zones:['草原'],who:'警備員のお爺さんシズオ'},{label:'ミケと目が合った',category:'交流',zones:['草原','自然'],who:'猫のミケ'},{label:'白い小石を見つけた',category:'収集',zones:['草原','自然']},{label:'枯れ草をくわえた',category:'収集',zones:['草原','自然']},{label:'赤い切れ端を運んだ',category:'収集',zones:['草原','自然']},{label:'草のやわらかい場所で丸くなった',category:'休息',zones:['草原','自然']},{label:'風の弱い場所を選んで眠った',category:'休息',zones:['草原','自然']},{label:'追いかけたものを見失った',category:'失敗',zones:['草原','自然']},{label:'くわえたものを途中でなくした',category:'失敗',zones:['草原','自然']},{label:'新しい匂いの場所を見つけた',category:'発見',zones:['草原','自然']},{label:'いつもと違う音に気づいた',category:'発見',zones:['草原','自然']},{label:'少し誇らしそうに戻ってきた',category:'帰還',zones:['草原','自然']},{label:'水たまりをよけながら歩いた',category:'探索',zones:['草原','自然'],weatherOnly:'雨あがり'},{label:'ぬれた草のにおいをかいでいた',category:'観察',zones:['草原','自然'],weatherOnly:'雨あがり'},{label:'雨上がりの虹を見ていた',category:'発見',zones:['草原'],weatherOnly:'雨あがり'}];
+const AGG={観察:'今日は草原の気配をよく見ていたようです。',探索:'風の通る場所ばかり選んでいたようです。',交流:'誰かの気配を気にしていたようです。',収集:'今日は持ち帰りたいものが多かったようです。',休息:'落ち着ける場所を丁寧に選んでいました。',失敗:'少しだけうまくいかないこともあったようです。',発見:'小さな新しさをいくつか見つけたようです。',帰還:'最後はきちんと戻ってきたようです。'};
+
+const TREASURES = [
+  { id:'t_pet5',    name:'温かいてのひらの記憶',  hint:'35回なでられた。その感触がのこっている。',         condition:{type:'petting',   count:35}  },
+  { id:'t_pet20',   name:'信頼のかけら',           hint:'140回なでられた。少しだけ安心できるようになった。', condition:{type:'petting',   count:140} },
+  { id:'t_pet50',   name:'なでられすぎた毛並み',   hint:'350回。毛がいつもより柔らかくなっている。',        condition:{type:'petting',   count:350} },
+  { id:'t_feed5',   name:'おいしかった記憶',       hint:'5回ご飯をもらった。あの味を覚えている。',         condition:{type:'feeding',   count:5}  },
+  { id:'t_feed20',  name:'食いしん坊のしるし',     hint:'20回。お腹が空くと自然とこっちを向くようになった。', condition:{type:'feeding', count:20} },
+  { id:'t_wipe5',   name:'さっぱりした午後',       hint:'5回ふいてもらった。きれいが好きになってきた。',   condition:{type:'cleaning',  count:5}  },
+  { id:'t_wipe20',  name:'清潔な白',               hint:'20回。自分でも毛並みを気にするようになった。',    condition:{type:'cleaning',  count:20} }
+];
+const MOKORON_SIGNALS = [
+  { emoji:'🍚', weight:10, cond: s => s.hunger > 60 },
+  { emoji:'🍛', weight:8,  cond: s => s.hunger > 65 },
+  { emoji:'🍠', weight:6,  cond: s => s.hunger > 70 },
+  { emoji:'🍖', weight:5,  cond: s => s.hunger > 75 },
+  { emoji:'🥣', weight:4,  cond: s => s.hunger > 80 },
+  { emoji:'😋', weight:3,  cond: s => s.hunger > 50 },
+  { emoji:'👀🍎', weight:4, cond: s => s.hunger > 68 },
+  { emoji:'💤',  weight:10, cond: s => s.mood === 'sleep' },
+  { emoji:'😪',  weight:8,  cond: s => s.mood === 'drowsy' },
+  { emoji:'🌙',  weight:6,  cond: s => s.mood === 'sleep' },
+  { emoji:'🛌',  weight:5,  cond: s => s.mood === 'sleep' },
+  { emoji:'😴',  weight:7,  cond: s => s.mood === 'drowsy' || s.mood === 'sleep' },
+  { emoji:'🌛',  weight:4,  cond: s => s.mood === 'sleep' && nowPhase() === '夜' },
+  { emoji:'🥺',  weight:8,  cond: s => s.mood === 'love' },
+  { emoji:'💕',  weight:7,  cond: s => s.mood === 'love' && s.trust > 70 },
+  { emoji:'🫂',  weight:5,  cond: s => s.shortMemory.petting > 50 },
+  { emoji:'💗',  weight:6,  cond: s => s.trust > 75 },
+  { emoji:'✨',  weight:4,  cond: s => s.mood === 'happy' },
+  { emoji:'🌸',  weight:3,  cond: s => s.mood === 'happy' && s.trust > 60 },
+  { emoji:'🛁',  weight:8,  cond: s => s.cleanliness < 40 },
+  { emoji:'🧼',  weight:6,  cond: s => s.cleanliness < 50 },
+  { emoji:'💦',  weight:5,  cond: s => s.cleanliness < 45 },
+  { emoji:'😣',  weight:4,  cond: s => s.cleanliness < 35 },
+  { emoji:'🫥',  weight:9,  cond: s => s.shortMemory.neglect > 50 },
+  { emoji:'😶',  weight:7,  cond: s => s.shortMemory.neglect > 40 },
+  { emoji:'🌧️', weight:5,  cond: s => s.overlay === 'gloomy' },
+  { emoji:'😔',  weight:6,  cond: s => s.comfort < 40 },
+  { emoji:'🍂',  weight:3,  cond: s => s.overlay === 'gloomy' },
+  { emoji:'🌟',  weight:7,  cond: s => s.overlay === 'shiny' },
+  { emoji:'🎵',  weight:5,  cond: s => s.mood === 'happy' },
+  { emoji:'🌈',  weight:4,  cond: s => s.mood === 'happy' && s.weather === '雨あがり' },
+  { emoji:'☀️', weight:5,  cond: s => s.weather === '晴れ' && s.mood === 'idle' && s.trust > 55 },
+  { emoji:'🍀',  weight:3,  cond: s => s.trust > 70 && s.comfort > 70 },
+  { emoji:'🌬️', weight:6,  cond: s => s.weather === '風つよめ' },
+  { emoji:'🌂',  weight:5,  cond: s => s.weather === 'くもり' },
+  { emoji:'🌦️', weight:4,  cond: s => s.weather === '雨あがり' },
+  { emoji:'🌅',  weight:5,  cond: s => nowPhase() === '朝' && s.mood === 'idle' },
+  { emoji:'🌄',  weight:4,  cond: s => nowPhase() === '夕' },
+  { emoji:'⭐',  weight:4,  cond: s => nowPhase() === '夜' && s.mood !== 'sleep' },
+  { emoji:'🐾',  weight:5,  cond: s => s.dist === 'far' || s.dist === 'corner' },
+  { emoji:'🔍',  weight:4,  cond: s => s.dist === 'far' },
+  { emoji:'🏕️', weight:3,  cond: s => s.todayMaxDistance > 100 },
+  { emoji:'👑',  weight:3,  cond: s => s.trust >= 90 },
+  { emoji:'💎',  weight:2,  cond: s => s.trust >= 95 },
+  { emoji:'…',   weight:3,  cond: s => true },
+  { emoji:'🌿',  weight:4,  cond: s => true },
+  { emoji:'🍃',  weight:3,  cond: s => true },
+  { emoji:'❓',  weight:2,  cond: s => s.shortMemory.neglect > 30 }
+];
+const BADGES = [
+  { id:'b_day3',   label:'🌱 3日つづいた',       cond: s => s.consecutiveDays >= 3  },
+  { id:'b_day7',   label:'🌿 一週間のご縁',       cond: s => s.consecutiveDays >= 7  },
+  { id:'b_day30',  label:'🌳 一ヶ月のともだち',   cond: s => s.consecutiveDays >= 30 },
+  { id:'b_trust80',label:'💙 心を開いてくれた',   cond: s => s.trust >= 80           },
+  { id:'b_trust99',label:'💎 深い信頼',           cond: s => s.trust >= 99           },
+  { id:'b_dist188',label:'🗺️ 最遠の地へ',         cond: s => s.maxDistance >= 188    },
+  { id:'b_collect5',label:'🎒 5つ集めた',         cond: s => s.collectedItems.length >= 5}
+];
+
+
+const ACHIEVEMENTS = [
+  { id:'a_login_1', label:'🌱 はじめて来た', cond:s => s.totalLoginDays >= 1 },
+  { id:'a_login_3', label:'🍀 3日つづいた', cond:s => s.totalLoginDays >= 3 },
+  { id:'a_login_7', label:'🌿 1週間つづいた', cond:s => s.totalLoginDays >= 7 },
+  { id:'a_login_14', label:'🌼 2週間つづいた', cond:s => s.totalLoginDays >= 14 },
+  { id:'a_login_30', label:'🌳 30日つづいた', cond:s => s.totalLoginDays >= 30 },
+  { id:'a_feed_20', label:'🍚 ごはん20回', cond:s => (s.actionCounts.feeding||0) >= 20 },
+  { id:'a_pet_40', label:'🤍 なでる280回', cond:s => (s.actionCounts.petting||0) >= 280 },
+  { id:'a_wipe_20', label:'🧼 ふく20回', cond:s => (s.actionCounts.cleaning||0) >= 20 },
+  { id:'a_mofu_3', label:'✨ もふもふ3日', cond:s => (s.mofuStreak||0) >= 3 },
+  { id:'a_far_1', label:'👣 はじめての遠出', cond:s => (s.maxDistance||0) >= 112 },
+  { id:'a_set_1', label:'🎁 はじめてのセット', cond:s => (s.completedSets||[]).length >= 1 },
+];
+const DAILY_TASKS = [
+  { id:'pet3',   label:'今日3回なでる',    check: s => (s.actionCounts.petting_today||0) >= 3,  reward:'trust', amount:5  },
+  { id:'feed2',  label:'今日2回ごはん',    check: s => (s.actionCounts.feeding_today||0)  >= 2,  reward:'comfort', amount:8 },
+  { id:'wipe1',  label:'今日1回ふく',      check: s => (s.actionCounts.cleaning_today||0) >= 1,  reward:'cleanliness', amount:20 },
+  { id:'check',  label:'起動して確認する', check: s => s.todayChecked === true,              reward:'trust', amount:2  },
+];
+const OMIYAGE_TABLE = [
+  { id:'o_stone',   name:'白い石ころ',     emoji:'🪨', minMins:10,  maxMins:30,  rarity:1 },
+  { id:'o_feather', name:'鳥の羽',         emoji:'🪶', minMins:20,  maxMins:60,  rarity:2 },
+  { id:'o_shell',   name:'小さな貝殻',     emoji:'🐚', minMins:30,  maxMins:120, rarity:2 },
+  { id:'o_acorn',   name:'どんぐり',       emoji:'🌰', minMins:15,  maxMins:45,  rarity:1 },
+  { id:'o_leaf',    name:'きれいな葉っぱ', emoji:'🍁', minMins:5,   maxMins:20,  rarity:1 },
+  { id:'o_glass',   name:'光るガラス片',   emoji:'💠', minMins:60,  maxMins:999, rarity:3 },
+  { id:'o_button',  name:'古いボタン',     emoji:'🔘', minMins:45,  maxMins:180, rarity:3 },
+  { id:'o_ribbon',  name:'赤いリボン',     emoji:'🎀', minMins:90,  maxMins:999, rarity:3 },
+];
+const PET_REACTIONS = [
+  [1,  'きゅーん'],
+  [2,  'ふにゃ…'],
+  [3,  '…もっと？'],
+  [5,  'えへへ'],
+  [8,  'はぁ…しあわせ'],
+  [12, 'もふもふ…'],
+  [20, '…ねむい'],
+  [30, 'zzz…'],
+];
+const WEATHER_NAMES = ['晴れ','くもり','風つよめ','雨あがり'];
+const WEATHER_EMOJI = { '晴れ':'☀️', 'くもり':'☁️', '風つよめ':'🌬️', '雨あがり':'🌦️' };
+const SEASONAL_WHAT = {
+  1:  { label:'雪の形をじっと見ていた',      category:'観察', zones:['草原','自然'] },
+  3:  { label:'桜の花びらを追いかけた',       category:'探索', zones:['草原'] },
+  6:  { label:'雨上がりのカタツムリに近づいた',category:'交流', zones:['自然'] },
+  8:  { label:'夕暮れのセミの声に耳をすませた',category:'観察', zones:['草原','自然'] },
+  10: { label:'落ち葉を踏んで音を楽しんでいた',category:'探索', zones:['草原'] },
+  12: { label:'息が白くなるのを確かめていた', category:'発見', zones:['草原'] },
+};
+const DIARY_TEMPLATES = [
+  s => s.trust > 80  ? 'あのひとのこと、すこしわかってきた気がする。' : null,
+  s => s.hunger > 70 ? 'きょうはおなかがすいていた。でもがまんした。' : null,
+  s => s.weather==='雨あがり' ? 'つちのにおいがして、なんかうれしかった。' : null,
+  s => s.mood==='sleep' ? 'きょうはよくねむれた。草のにおいがした。' : null,
+  s => s.overlay==='shiny' ? 'きれいにしてもらった。そよかぜがきもちよかった。' : null,
+  s => s.todayMaxDistance >= 146 ? 'とおいところまでいった。かえりみちがながかった。' : null,
+  s => s.cleanliness < 40 ? 'きょうはすこしよごれた。だいじょうぶ。' : null,
+  s => '草原はきょうもしずかだった。',
+];
+
+const MORNING_HINTS = ['🌅✨','🌿➡️','👣❔','🍃✨','🌬️↗️','🌤️…'];
+const TRUST_CALLER = ['だれか','あのひと','きみ','きみ','だいすきなひと'];
+const TRUST_PET_WORDS = [['…','・','…'],['✨','…','👀'],['💗','✨','➕'],['🥰','💞','🫶'],['💖','💕','🤍']];
+const TRUST_FEED_WORDS = [['🍽️'],['🍽️✨','😌'],['🍎✨','🍚💗'],['🍯💖','🍛✨'],['🍯💕','🍚💞']];
+const SEASONAL_OMIYAGE = {
+  3:{ id:'o_sakura', name:'桜の花びら', emoji:'🌸', minMins:10, maxMins:60, rarity:2 },
+  6:{ id:'o_snail', name:'かたつむり跡', emoji:'🐌', minMins:20, maxMins:90, rarity:2 },
+  8:{ id:'o_cicada', name:'セミのぬけがら', emoji:'🦗', minMins:30, maxMins:999, rarity:3 },
+  10:{ id:'o_chestnut', name:'栗', emoji:'🌰', minMins:10, maxMins:45, rarity:1 },
+  12:{ id:'o_frost', name:'霜の結晶', emoji:'❄️', minMins:60, maxMins:999, rarity:3 },
+  1:{ id:'o_snowball', name:'雪のかけら', emoji:'⛄', minMins:30, maxMins:180, rarity:3 }
+};
+const OMIYAGE_SETS = [
+  {id:'set_nature',name:'草原のかけら',emoji:'🌿',needs:['o_stone','o_feather','o_leaf'],hint:'石ころ、羽、葉っぱ。草原の3つが揃った。',reward:{trust:10,comfort:15}},
+  {id:'set_rare',name:'光るもののコレクション',emoji:'💎',needs:['o_glass','o_shell','o_frost'],hint:'ガラス片、貝殻、霜の結晶。光るものが揃った。',reward:{trust:15,comfort:20}},
+  {id:'set_cozy',name:'ぬくもりのかたまり',emoji:'🎀',needs:['o_ribbon','o_button','o_acorn'],hint:'リボン、ボタン、どんぐり。ぬくもりのあるものが揃った。',reward:{trust:12,comfort:12}}
+];
+const FOOD_MENU = [
+  { id:'f_apple', name:'りんご', emoji:'🍎', category:'甘い', hungerVal:18, comfortVal:6, trustVal:2, rare:false },
+  { id:'f_strawb', name:'いちご', emoji:'🍓', category:'甘い', hungerVal:14, comfortVal:8, trustVal:3, rare:false },
+  { id:'f_honey', name:'はちみつ', emoji:'🍯', category:'甘い', hungerVal:12, comfortVal:10, trustVal:4, rare:false },
+  { id:'f_cake', name:'ふわふわケーキ', emoji:'🎂', category:'甘い', hungerVal:22, comfortVal:16, trustVal:5, rare:true },
+  { id:'f_pudding', name:'プリン', emoji:'🍮', category:'甘い', hungerVal:16, comfortVal:12, trustVal:4, rare:false },
+  { id:'f_choco', name:'チョコレート', emoji:'🍫', category:'甘い', hungerVal:14, comfortVal:14, trustVal:4, rare:false },
+  { id:'f_cookie', name:'クッキー', emoji:'🍪', category:'甘い', hungerVal:12, comfortVal:10, trustVal:3, rare:false },
+  { id:'f_icecream', name:'アイスクリーム', emoji:'🍦', category:'甘い', hungerVal:16, comfortVal:14, trustVal:4, rare:false },
+  { id:'f_mochi', name:'お餅', emoji:'🍡', category:'甘い', hungerVal:18, comfortVal:10, trustVal:3, rare:false },
+  { id:'f_banana', name:'バナナ', emoji:'🍌', category:'甘い', hungerVal:20, comfortVal:6, trustVal:2, rare:false },
+  { id:'f_rice', name:'おにぎり', emoji:'🍙', category:'しょっぱい', hungerVal:28, comfortVal:8, trustVal:3, rare:false },
+  { id:'f_bread', name:'パン', emoji:'🍞', category:'しょっぱい', hungerVal:22, comfortVal:6, trustVal:2, rare:false },
+  { id:'f_ramen', name:'ラーメン', emoji:'🍜', category:'しょっぱい', hungerVal:30, comfortVal:10, trustVal:3, rare:false },
+  { id:'f_soup', name:'あたたかいスープ', emoji:'🍲', category:'しょっぱい', hungerVal:20, comfortVal:14, trustVal:5, rare:false },
+  { id:'f_cheese', name:'チーズ', emoji:'🧀', category:'しょっぱい', hungerVal:16, comfortVal:8, trustVal:3, rare:false },
+  { id:'f_egg', name:'ゆでたまご', emoji:'🥚', category:'しょっぱい', hungerVal:18, comfortVal:8, trustVal:3, rare:false },
+  { id:'f_potato', name:'ポテト', emoji:'🍟', category:'しょっぱい', hungerVal:20, comfortVal:10, trustVal:2, rare:false },
+  { id:'f_miso', name:'みそしる', emoji:'🥣', category:'しょっぱい', hungerVal:14, comfortVal:12, trustVal:5, rare:false },
+  { id:'f_karaage', name:'からあげ', emoji:'🍗', category:'しょっぱい', hungerVal:28, comfortVal:12, trustVal:4, rare:false },
+  { id:'f_grass', name:'やわらかい草', emoji:'🌿', category:'自然', hungerVal:14, comfortVal:10, trustVal:6, rare:false },
+  { id:'f_mushroom', name:'きのこ', emoji:'🍄', category:'自然', hungerVal:16, comfortVal:8, trustVal:4, rare:false },
+  { id:'f_acorn2', name:'どんぐり', emoji:'🌰', category:'自然', hungerVal:18, comfortVal:6, trustVal:3, rare:false },
+  { id:'f_carrot', name:'にんじん', emoji:'🥕', category:'自然', hungerVal:20, comfortVal:8, trustVal:3, rare:false },
+  { id:'f_berries', name:'きのみ', emoji:'🫐', category:'自然', hungerVal:16, comfortVal:10, trustVal:5, rare:false },
+  { id:'f_leaf', name:'つゆ草の葉', emoji:'🍃', category:'自然', hungerVal:10, comfortVal:12, trustVal:7, rare:false },
+  { id:'f_corn', name:'とうもろこし', emoji:'🌽', category:'自然', hungerVal:22, comfortVal:8, trustVal:3, rare:false },
+  { id:'f_tomato', name:'トマト', emoji:'🍅', category:'自然', hungerVal:16, comfortVal:8, trustVal:3, rare:false },
+  { id:'f_pumpkin', name:'かぼちゃ', emoji:'🎃', category:'自然', hungerVal:24, comfortVal:10, trustVal:3, rare:false },
+  { id:'f_clover', name:'四つ葉のクローバー', emoji:'🍀', category:'自然', hungerVal:8, comfortVal:16, trustVal:9, rare:true },
+  { id:'f_milk', name:'ミルク', emoji:'🥛', category:'飲みもの', hungerVal:14, comfortVal:12, trustVal:5, rare:false },
+  { id:'f_water', name:'きれいな水', emoji:'💧', category:'飲みもの', hungerVal:10, comfortVal:8, trustVal:4, rare:false },
+  { id:'f_tea', name:'ほうじ茶', emoji:'🍵', category:'飲みもの', hungerVal:10, comfortVal:14, trustVal:6, rare:false },
+  { id:'f_juice', name:'りんごジュース', emoji:'🧃', category:'飲みもの', hungerVal:12, comfortVal:10, trustVal:4, rare:false },
+  { id:'f_cocoa', name:'ホットココア', emoji:'☕', category:'飲みもの', hungerVal:12, comfortVal:16, trustVal:6, rare:false },
+  { id:'f_dango', name:'お花見だんご', emoji:'🍡', category:'甘い', hungerVal:20, comfortVal:18, trustVal:7, rare:true, seasonMonth:3 },
+  { id:'f_kakigori', name:'かき氷', emoji:'🍧', category:'甘い', hungerVal:14, comfortVal:20, trustVal:6, rare:true, seasonMonth:8 },
+  { id:'f_imo', name:'焼き芋', emoji:'🍠', category:'自然', hungerVal:26, comfortVal:16, trustVal:6, rare:true, seasonMonth:10 },
+  { id:'f_hotpot', name:'おでん', emoji:'🍢', category:'しょっぱい', hungerVal:28, comfortVal:18, trustVal:7, rare:true, seasonMonth:12 },
+  { id:'f_sakuramochi', name:'桜餅', emoji:'🌸', category:'甘い', hungerVal:16, comfortVal:20, trustVal:8, rare:true, seasonMonth:3 },
+  { id:'f_handmade', name:'手づくりごはん', emoji:'🍱', category:'特別', hungerVal:35, comfortVal:25, trustVal:12, rare:true },
+  { id:'f_mystery', name:'なぞのたべもの', emoji:'❓', category:'特別', hungerVal:0, comfortVal:0, trustVal:0, rare:true }
+];
+const MOKORON_PERSONALITIES = [
+  { id:'sweet', label:'甘いもの好き', favCategory:'甘い', dislike:'しょっぱい', eatStyle:'slow' },
+  { id:'savory', label:'しょっぱいもの好き', favCategory:'しょっぱい', dislike:'甘い', eatStyle:'fast' },
+  { id:'nature', label:'自然のもの好き', favCategory:'自然', dislike:'特別', eatStyle:'slow' },
+  { id:'drinker', label:'飲みもの好き', favCategory:'飲みもの', dislike:'しょっぱい', eatStyle:'slow' },
+  { id:'picky', label:'気まぐれ', favCategory:null, dislike:null, eatStyle:'picky' },
+  { id:'hungry', label:'なんでも食べる', favCategory:null, dislike:null, eatStyle:'fast' }
+];
+const TUTORIAL_SLIDES = [
+  { icon:'🌿', title:'モコロンの草原へようこそ', body:'モコロンは、草原でひとりで暮らす謎生物です。\nあなたのことを、少しずつ覚えていきます。' },
+  { icon:'👋', title:'できること', body:'なでる・ごはん・ふく・もふもふ\nの4つだけです。\n\nモコロンが何をしているか、\nそっと見守ってあげてください。' },
+  { icon:'📖', title:'放置している間も', body:'モコロンは草原を歩き回り、\n誰かに会ったり、何かを拾ったりしています。\n\n戻ってきた時に「記録」や「おみやげ」を\n確認してみてください。' },
+  { icon:'🌱', title:'はじまります', body:'モコロンとの時間を、\nゆっくり育ててください。' }
+];
+
+const MOKORON_COLOR_PALETTES = {
+  plain_white:{label:'普通の白', body:'#fffef9', shadow:'#e7eef9', low:'#d5e3f4', ear:'#ffd6df', cheek:'#ffbfca', accent:'#9fd8ff'},
+  white_gold:{label:'白金', body:'#fffef6', shadow:'#f1ecd7', low:'#e7dfb8', ear:'#ffe3cf', cheek:'#ffd8a8', accent:'#f6d56b'},
+  ash_gray:{label:'灰くすみ', body:'#d3d3cf', shadow:'#bcc1c8', low:'#9ea4ad', ear:'#cdbdc0', cheek:'#b8a7aa', accent:'#8d99a6'},
+  rain_gray:{label:'雨雲グレー', body:'#c7ced8', shadow:'#b2bcc9', low:'#96a2b3', ear:'#d5cad4', cheek:'#b9c3d0', accent:'#7f95a8'},
+  cloudy_bluegray:{label:'くもり青灰', body:'#c8d3dd', shadow:'#b6c3cf', low:'#96a6b5', ear:'#d8d7df', cheek:'#c1cad5', accent:'#7aa0b8'},
+  dusty_brown:{label:'土ぼこり茶', body:'#cbb39b', shadow:'#ba9f87', low:'#98765e', ear:'#d8bba9', cheek:'#c79f87', accent:'#8a6b54'},
+  muddy_beige:{label:'泥はねベージュ', body:'#d8c6af', shadow:'#c7b59f', low:'#ab8d74', ear:'#ddc3b3', cheek:'#c7a48d', accent:'#90735a'},
+  muted_ochre:{label:'にぶい黄土', body:'#d6bf7d', shadow:'#cab26a', low:'#9c8246', ear:'#e5cc8f', cheek:'#caa96b', accent:'#8b6b35'},
+  dry_straw:{label:'乾いた藁色', body:'#e0ce8f', shadow:'#d0bf7a', low:'#a18b4b', ear:'#ead89c', cheek:'#d7b772', accent:'#90723c'},
+  dusty_violet:{label:'くすみ紫', body:'#cfc3d5', shadow:'#b9adc2', low:'#8c7e99', ear:'#d8cadf', cheek:'#c5b0cf', accent:'#8f7ca8'},
+  midnight_navy:{label:'夜更け紺', body:'#8a94b8', shadow:'#7881a6', low:'#4e587e', ear:'#a7accd', cheek:'#8e8fc0', accent:'#7fc5e8'},
+  wilted_green:{label:'しけた緑', body:'#b6c39e', shadow:'#a5b28f', low:'#6f8555', ear:'#cad4b5', cheek:'#b6c49a', accent:'#87a86f'},
+  shadow_teal:{label:'かげ色青緑', body:'#99b7b5', shadow:'#86a4a2', low:'#5c7877', ear:'#b8d2cf', cheek:'#9fc1ba', accent:'#5fa4aa'},
+  cream:{label:'クリーム', body:'#fff4d8', shadow:'#eee1bf', low:'#d7c293', ear:'#ffe3d4', cheek:'#f7c8b3', accent:'#e6b86a'},
+  honey:{label:'はちみつ色', body:'#f3d36d', shadow:'#e1be56', low:'#bf9531', ear:'#f8ddb1', cheek:'#efb85d', accent:'#d98831'},
+  sunlight_yellow:{label:'陽だまりイエロー', body:'#f7e96e', shadow:'#e7d85c', low:'#c7ab39', ear:'#ffe6be', cheek:'#f8c779', accent:'#f0a22b'},
+  sunset_orange:{label:'夕焼けオレンジ', body:'#f5b26b', shadow:'#e19755', low:'#b96d30', ear:'#ffd2b0', cheek:'#ef9661', accent:'#db6e34'},
+  amber_orange:{label:'琥珀オレンジ', body:'#ef9a49', shadow:'#da8239', low:'#ae5f23', ear:'#ffcba6', cheek:'#ea8850', accent:'#d66d20'},
+  warm_beige:{label:'ぬくもりベージュ', body:'#e8c8a9', shadow:'#d7b697', low:'#ae8665', ear:'#f0d2c1', cheek:'#e2aa93', accent:'#c28a5d'},
+  pale_peach:{label:'うす桃', body:'#ffd7da', shadow:'#edc0c6', low:'#d49aa5', ear:'#ffdfe8', cheek:'#ffb9c6', accent:'#f2a8b8'},
+  sakura:{label:'桜色', body:'#ffc8d9', shadow:'#ebb1c3', low:'#d0879d', ear:'#ffe2ea', cheek:'#ffb0c6', accent:'#f2a6cc'},
+  young_leaf:{label:'若葉色', body:'#d8e779', shadow:'#c6d868', low:'#8fa63f', ear:'#e8f2aa', cheek:'#d4e189', accent:'#6ec065'},
+  meadow_lime:{label:'草原黄緑', body:'#bfe25f', shadow:'#acd04f', low:'#729331', ear:'#dff1a6', cheek:'#b6da76', accent:'#58a84a'},
+  pale_mint:{label:'うすミント', body:'#c6efd8', shadow:'#b1dfc6', low:'#79b094', ear:'#ddf8e7', cheek:'#b7e2cf', accent:'#6fd0b2'},
+  soft_water:{label:'やわらか水色', body:'#bde7f2', shadow:'#a8d7e7', low:'#74aac0', ear:'#d9f3fb', cheek:'#b3dceb', accent:'#6bb3db'},
+  pale_sky:{label:'うす空色', body:'#b8dcff', shadow:'#a3c7eb', low:'#6e9dc6', ear:'#d9ecff', cheek:'#a8d0ff', accent:'#5e9ee7'},
+  star_sky_blue:{label:'星くず空色', body:'#8fd1ff', shadow:'#78bbe8', low:'#4a84b8', ear:'#d2efff', cheek:'#a6dbff', accent:'#fff0a0'},
+  adventure_teal:{label:'冒険青緑', body:'#63d0b7', shadow:'#4db7a0', low:'#2b8775', ear:'#c8f4e9', cheek:'#8ce1cf', accent:'#3c9df2'},
+  affection_pink:{label:'甘え桃', body:'#ff9ebc', shadow:'#ea86a6', low:'#b95f79', ear:'#ffd6e5', cheek:'#ff87a8', accent:'#ffb0d6'},
+  rainbow_prism:{label:'レインボー偏光', body:'#ddd6ff', shadow:'#c4bef0', low:'#9f95dd', ear:'#c9fff1', cheek:'#ffe58b', accent:'#ff96c5'}
+};
+
+
+const STORAGE_KEY='mokoron-save-v1';
+const PET_DAILY_EFFECTIVE_LIMIT = 10;
+const PETTING_THRESHOLD_MULTIPLIER = 7;
+const PLACE_DISTANCE={ '寝草のくぼみ':18, '風見の坂':74, '牧場の柵のそば':112, '一本木のかげ':146, 'ぬれ土のくぼみ':188 };
+const state={mood:'idle',dist:'mid',overlay:'none',frame:0,lastTs:0,breath:0,blink:0,tailWave:0,weather:'晴れ',isBlinking:false,blinkTimer:90,nextBlinkAt:60,doubleBlinkQueued:false,earTilt:0,targetEarTilt:0,tailLag:0,impactX:0,impactY:0,cloudPhase:0,hunger:18,comfort:82,cleanliness:86,trust:52,shortMemory:{petting:0,feeding:0,cleaning:0,neglect:0},longMemory:{petting_relief:18,cleaning_relief:12,feeding_trust:14},growthProfile:{bond:18,appetite:14,poise:16,curiosity:12,wild:10,dawn:0,dusk:0,rain:0,wind:0},actionCounts:{petting:0,cleaning:0,feeding:0,petting_today:0,feeding_today:0,cleaning_today:0},collection:[],omiyageBag:[],consecutiveDays:0,lastVisitDate:null,badges:[],todayChecked:false,dailyDone:[],petStreak:0,lastPetAt:0,tomorrowWeather:null,lastMofuAt:0,diaryEntries:[],lastReport:null,lastActionAt:Date.now(),lastReportAt:0,reportHistory:[],discoveredWho:[],discoveredPlaces:[],collectedItems:[],maxDistance:0,todayWho:[],todayPlaces:[],todayItems:[],todayMaxDistance:0,lastTodaySummary:null,pendingSummary:false,pendingRitual:false,ritualAction:null,ritualText:'',tutorialDone:false,firstLaunchDate:null,lastMorningFeed:null,lastEveningFeed:null,lastNightWipe:null,reportTone:'normal',todayEvening:false,lastMorningHint:null,lastPetAfterReport:false,mofuStreak:0,lastMofuDate:null,completedSets:[],discoveredPlaceDates:{},healthFlag:null,healthFlagTs:0,healthFlagRecovered:false,personality:null,currentFoodId:null,currentColorId:'plain_white',lastColorSetDate:null,colorDailySamples:[],achievementIds:[],totalLoginDays:0,lastLoginDate:null,feedWindowDate:null,feedWindowCount:0,lastFeedAt:0,sessionPetCount:0,sessionWipeCount:0,sessionFeedCount:0,groundHintIndex:0,lastGroundHintSwap:0,petEffectiveDate:null,petEffectiveCount:0,wipeEffectiveDate:null,wipeEffectiveCount:0,lastReturnHandledAt:0};
+const clamp=(v,min,max)=>Math.max(min,Math.min(max,v)); const pick=(arr)=>arr[Math.floor(Math.random()*arr.length)]; const rect=(x,y,w,h,c)=>{if(c!=null)ctx.fillStyle=c;ctx.fillRect(x,y,w,h)};
+let appBooted=false;
+let wasHidden=false;
+function getHour(){return new Date().getHours();}
+function isDeepNight(){const h=getHour();return h>=23||h<5;}
+function nowPhase(){const h=new Date().getHours();if(h<10)return '朝';if(h<16)return '昼';if(h<19)return '夕';return '夜';}
+function getAnim(){const anims={love:{speed:320,frames:[{oy:0,tilt:-5,pose:'idle',earMode:'soft',eyeMode:'up',tailMode:'soft',mouth:'smile',lookSide:false},{oy:1,tilt:-7,pose:'idle',earMode:'soft',eyeMode:'wet',tailMode:'soft',mouth:'smile',lookSide:false},{oy:0,tilt:4,pose:'idle',earMode:'soft',eyeMode:'up',tailMode:'soft',mouth:'smile',lookSide:false},{oy:0,tilt:0,pose:'idle',earMode:'soft',eyeMode:'up',tailMode:'tiny',mouth:'flat',lookSide:false}]},happy:{speed:180,frames:[{oy:1,squish:2,pose:'idle',earMode:'perk',eyeMode:'happy',tailMode:'fast',mouth:'open',lookSide:false},{oy:-10,pose:'jump',earMode:'perk',eyeMode:'happy',tailMode:'fast',mouth:'open',lookSide:false},{oy:-6,pose:'jump',earMode:'perk',eyeMode:'happy',tailMode:'fast',mouth:'open',lookSide:false},{oy:0,squish:1,pose:'idle',earMode:'perk',eyeMode:'happy',tailMode:'soft',mouth:'smile',lookSide:false}]},idle:{speed:420,frames:isYawnTime() ? [
+  {oy:0,pose:'idle',earMode:'droop',eyeMode:'half',tailMode:'tiny',mouth:'flat',lookSide:false},
+  {oy:1,pose:'idle',earMode:'droop',eyeMode:'half',tailMode:'tiny',mouth:'open',lookSide:false},
+  {oy:2,pose:'idle',earMode:'droop',eyeMode:'close',tailMode:'stop',mouth:'open',lookSide:false},
+  {oy:0,pose:'idle',earMode:'mid',eyeMode:'normal',tailMode:'soft',mouth:'smile',lookSide:false}
+] : nowPhase()==='夜' ? [
+  {oy:0,tilt:0,pose:'idle',earMode:'mid',eyeMode:'normal',tailMode:'soft',mouth:'flat',lookSide:false},
+  {oy:1,tilt:2,pose:'idle',earMode:'droop',eyeMode:'half',tailMode:'tiny',mouth:'flat',lookSide:false},
+  {oy:3,tilt:5,pose:'idle',earMode:'droop',eyeMode:'close',tailMode:'stop',mouth:'flat',lookSide:false},
+  {oy:0,tilt:0,pose:'idle',earMode:'mid',eyeMode:'half',tailMode:'tiny',mouth:'flat',lookSide:false}
+] : [
+  {oy:0,pose:'idle',earMode:'mid',eyeMode:'normal',tailMode:'soft',mouth:'flat',lookSide:false},
+  {oy:0,pose:'idle',earMode:'perk',eyeMode:'normal',tailMode:'soft',mouth:'flat',lookSide:true},
+  {oy:1,pose:'idle',earMode:'mid',eyeMode:'normal',tailMode:'tiny',mouth:'smile',lookSide:false},
+  {oy:0,pose:'idle',earMode:'mid',eyeMode:'normal',tailMode:'tiny',mouth:'flat',lookSide:false}
+]},drowsy:{speed:560,frames:[{oy:0,pose:'idle',earMode:'droop',eyeMode:'half',tailMode:'tiny',mouth:'henyo',lookSide:false},{oy:2,pose:'idle',earMode:'droop',eyeMode:'half',tailMode:'tiny',mouth:'henyo',lookSide:false},{oy:3,pose:'idle',earMode:'droop',eyeMode:'close',tailMode:'stop',mouth:'flat',lookSide:false}]},sleep:{speed:760,frames:[{oy:0,pose:'sleep',earMode:'droop',eyeMode:'close',tailMode:'stop',mouth:'flat'},{oy:1,pose:'sleep',earMode:'droop',eyeMode:'close',tailMode:'stop',mouth:'flat'}]}};return anims[state.mood]||anims.idle;}
+function drawTail(f,ox,oy){const swing=f.tailMode==='fast'?Math.sin(state.tailWave*1.7)*8:f.tailMode==='soft'?Math.sin(state.tailWave*.9)*3.4:f.tailMode==='tiny'?Math.sin(state.tailWave*.7)*1.5:0;const lag=(state.tailLag||0)*1.6;const tx=64+ox+swing+lag,ty=42+oy+(f.pose==='sleep'?8:0);rect(tx,ty,12,12,C.out);rect(tx+1,ty+1,10,10,C.body);rect(tx+4,ty+4,5,5,C.accent);}
+function drawBody(f,ox,oy,sq){
+  if(f.pose==='sleep'){
+    rect(18+ox,58+oy,46,14,C.out);
+    rect(19+ox,59+oy,44,12,C.body);
+    rect(22+ox,61+oy,18,4,C.bodyLow);
+    ctx.fillStyle='rgba(255,255,255,.22)';
+    rect(28+ox,60+oy,10,1,null);
+    rect(40+ox,62+oy,7,1,null);
+    return;
+  }
+  const s=f.squish||0;
+  const bx=18+ox-Math.max(0,s*0.4);
+  const by=44+oy+s;
+  const bw=46+Math.max(0,s*0.8);
+  rect(bx,by,bw,22,C.out);
+  rect(bx+1,by+1,bw-2,20,C.body);
+  rect(bx+2,by+1,8,15,C.bodyShadow);
+  ctx.fillStyle='rgba(255,255,255,.26)';
+  rect(bx+6,by+2,12,1,null);
+  rect(bx+8,by+4,8,1,null);
+  ctx.fillStyle='rgba(255,255,255,.12)';
+  rect(bx+20,by+3,6,1,null);
+  ctx.fillStyle='rgba(0,0,0,.06)';
+  rect(bx+bw-10,by+16,5,1,null);
+  const leg=f.pose==='jump'?-9:0;
+  rect(28+ox,64+oy+leg,7,11,C.out);rect(29+ox,65+oy+leg,5,9,C.body);
+  rect(46+ox,64+oy+leg,7,11,C.out);rect(47+ox,65+oy+leg,5,9,C.body);
+  rect(29+ox,72+oy+leg,5,2,C.toe);rect(47+ox,72+oy+leg,5,2,C.toe);
+}
+function drawEars(f){const m=f.earMode,tilt=Math.round(state.earTilt||0),ly=m==='perk'?-29:m==='droop'?-18:-23,ry=m==='perk'?-30:m==='droop'?-17:-23,ls=(m==='perk'?-2:m==='droop'?2:0)-tilt,rs=(m==='perk'?-4:m==='droop'?2:0)+tilt;rect(-26+ls,ly+Math.abs(tilt),12,16,C.out);rect(-25+ls,ly+1+Math.abs(tilt),10,14,C.earPink);rect(14+rs,ry+Math.abs(tilt),12,16,C.out);rect(15+rs,ry+1+Math.abs(tilt),10,14,C.earPink);}
+function drawEyes(f){
+  const blink=state.isBlinking||f.eyeMode==='close',blinkOffset=blink?1:0,y=(f.eyeMode==='up'?-6:f.eyeMode==='half'?-1:-2)+blinkOffset,lx=-12+(f.lookSide?1:0),rx=6+(f.lookSide?1:0);
+  if(blink){rect(lx,y+8,8,1,C.eye);rect(rx,y+8,8,1,C.eye);return;}
+  [lx,rx].forEach(ex=>{
+    rect(ex,y,8,11,C.eye);
+    rect(ex+1,y+1,3,3,C.eyeHi);
+    if(f.eyeMode==='normal' || f.eyeMode==='up' || f.eyeMode==='half'){
+      rect(ex+5.5,y+1.5,1.5,1.5,'#fff');
+      rect(ex+4.5,y+3.5,1,1,'rgba(255,255,255,.65)');
+    }
+    if(f.eyeMode==='happy')rect(ex+3,y+7,3,2,C.eyeWarm);
+    if(f.eyeMode==='wet')rect(ex+4,y+2,2,4,C.eyeHi);
+  });
+}
+function drawMouth(f){if(f.mouth==='smile'){rect(-1,8,6,2,C.out);rect(-3,8,2,1,C.out);rect(5,8,2,1,C.out);}else if(f.mouth==='open'){rect(-1,8,6,2,C.out);rect(0,10,4,2,C.out);}else if(f.mouth==='henyo'){rect(-1,8,6,2,C.out);rect(-2,9,2,1,C.out);}else{rect(-1,8,6,1,C.out);}}
+function drawOverlay(ox,oy){if(state.overlay==='dirty'){rect(40+ox,58+oy,4,4,C.dirt);rect(58+ox,50+oy,4,3,C.dirt);}if(state.overlay==='gloomy'){ctx.globalAlpha=.16;rect(16+ox,18+oy,64,56,C.dull);ctx.globalAlpha=1;}if(state.overlay==='shiny'){rect(25+ox,20+oy,3,3,C.shine);rect(71+ox,26+oy,2,2,C.shine);}}
+
+function drawFlower(x, y, color) {
+  rect(x+1, y, 1, 3, '#6ea44a');
+  rect(x, y-1, 3, 2, color);
+  rect(x+1, y-1, 1, 1, '#fff');
+}
+function drawBall(x, y) {
+  rect(x, y, 5, 5, '#d32f2f');
+  rect(x+1, y, 2, 1, '#ff6b6b');
+}
+function drawEnvironment() {
+  const ox = 0, oy = 0;
+  const count = state.collection.length;
+  if (count >= 1) drawFlower(71, 83, '#ffb6c2');
+  if (count >= 2) drawBall(19, 80);
+  if (count >= 3) drawFlower(16, 87, '#fff1a9');
+  (state.omiyageBag || []).forEach(id => { if (OMIYAGE_DRAW[id]) OMIYAGE_DRAW[id](ox, oy); });
+}
+
+function drawMokoron(){
+  ctx.clearRect(0,0,96,96);
+  drawEnvironment();
+  const anim=getAnim(),f=anim.frames[state.frame%anim.frames.length];
+  const breathBase=Math.sin(state.breath);
+  const breathFactor=breathBase*Math.abs(breathBase);
+  const breath=breathFactor*1.2;
+  const ox=6+(state.impactX||0),oy=8+f.oy+breath+(state.impactY||0);
+  const shadowEl = document.getElementById('shadow');
+  if(shadowEl){
+    const jumpOff = f.pose==='jump' ? 12 : 0;
+    const sScale = 1 - (jumpOff / 50) - (breath / 30);
+    const sAlpha = Math.max(0.06, 0.16 - (jumpOff / 120));
+    shadowEl.style.transform = `translateX(-50%) scaleX(${sScale})`;
+    shadowEl.style.opacity = sAlpha;
+  }
+  drawTail(f,ox,oy);
+  drawBody(f,ox,oy,f.squish);
+  ctx.save();
+  ctx.translate(48+ox,34+oy+(f.pose==='jump'?-4:0));
+  ctx.rotate(((f.tilt||0)+(state.impactX||0)*0.7)*Math.PI/180);
+  drawEars(f);
+  rect(-22,-16,44,28,C.out);
+  rect(-21,-15,42,26,C.body);
+  rect(-20,-15,7,18,C.bodyShadow);
+  drawEyes(f);
+  rect(-18,3,5,4,C.cheek);
+  rect(13,3,5,4,C.cheek);
+  drawMouth(f);
+  ctx.restore();
+  drawOverlay(ox,oy);
+  const lightPulse=state.weather==='晴れ' ? (0.95 + Math.sin(state.cloudPhase||0)*0.05) : 1;
+  if(lightPulse!==1){
+    ctx.globalCompositeOperation='screen';
+    ctx.globalAlpha=0.08*Math.max(0,lightPulse-0.95)*10;
+    rect(14+ox,18+oy,58,40,'#ffffff');
+    ctx.globalAlpha=1;
+    ctx.globalCompositeOperation='source-over';
+  }
+}
+function updateDistanceLayout(){const pw=document.getElementById('petWrap').style,sh=document.getElementById('shadow').style,m={near:{scale:4.0,bottom:'21vh',width:'186px',left:'50%'},mid:{scale:3.6,bottom:'25vh',width:'160px',left:'52%'},far:{scale:2.85,bottom:'33vh',width:'124px',left:'58%'},corner:{scale:2.6,bottom:'31vh',width:'110px',left:'70%'}}[state.dist];pw.left=m.left;pw.bottom=m.bottom;pw.transform=`translateX(-50%) translateZ(0) scale(${m.scale})`;sh.width=m.width;sh.bottom=`calc(${m.bottom} - 1vh)`;}
+function setCPU(){ const cpu=document.getElementById('cpu'); if(cpu) cpu.textContent = getMokoronStatus(); }
+function setWeather(name){
+  state.weather=name;
+  document.getElementById('weather').textContent=name;
+  let filter = 'none';
+  if(name==='風つよめ') filter = 'saturate(1.04)';
+  else if(name==='雨あがり') filter = 'contrast(1.02) saturate(.94)';
+  else if(name==='くもり') filter = 'saturate(.92)';
+  let nightFilter = nowPhase()==='夜' ? ' brightness(0.85) sepia(0.2) hue-rotate(180deg) saturate(1.2)' : '';
+  const combined = ((filter === 'none' ? '' : filter) + nightFilter).trim() || 'none';
+  ['#farHills','#midHills','#soilBand','#skyGlow','#grassFront','#barn','#fence','#cloud1','#cloud2','#cloud3'].forEach(sel => {
+    const el = document.querySelector(sel);
+    if (el) el.style.filter = combined;
+  });
+  document.getElementById('app').style.filter = 'none';
+}
+function showBubble(text){const b=document.getElementById('bubble');b.textContent=text;b.classList.add('show');clearTimeout(showBubble.t);showBubble.t=setTimeout(()=>b.classList.remove('show'),1800);}
+function saveState(){
+  try{
+    const payload={
+      hunger:state.hunger,comfort:state.comfort,cleanliness:state.cleanliness,trust:state.trust,
+      shortMemory:state.shortMemory,longMemory:state.longMemory,growthProfile:state.growthProfile,weather:state.weather,
+      reportHistory:state.reportHistory.slice(-30),
+      collection: state.collection,
+      omiyageBag: state.omiyageBag,
+      actionCounts: state.actionCounts,
+      consecutiveDays: state.consecutiveDays,
+      lastVisitDate: state.lastVisitDate,
+      badges: state.badges,
+      todayChecked: state.todayChecked,
+      dailyDone: state.dailyDone,
+      petStreak: state.petStreak,
+      lastPetAt: state.lastPetAt,
+      tomorrowWeather: state.tomorrowWeather,
+      lastMofuAt: state.lastMofuAt,
+      diaryEntries: state.diaryEntries,
+      lastReport: state.lastReport,
+      currentColorId: state.currentColorId,
+      lastColorSetDate: state.lastColorSetDate,
+      colorDailySamples: state.colorDailySamples,
+      discoveredWho: state.discoveredWho,
+      discoveredPlaces: state.discoveredPlaces,
+      collectedItems: state.collectedItems,
+      maxDistance: state.maxDistance,
+      todayWho: state.todayWho,
+      todayPlaces: state.todayPlaces,
+      todayItems: state.todayItems,
+      todayMaxDistance: state.todayMaxDistance,
+      lastTodaySummary: state.lastTodaySummary,
+      tutorialDone: state.tutorialDone,
+      firstLaunchDate: state.firstLaunchDate,
+      personality: state.personality,
+      currentFoodId: state.currentFoodId,
+      lastMorningFeed: state.lastMorningFeed,
+      lastEveningFeed: state.lastEveningFeed,
+      lastNightWipe: state.lastNightWipe,
+      mofuStreak: state.mofuStreak,
+      lastMofuDate: state.lastMofuDate,
+      completedSets: state.completedSets,
+      discoveredPlaceDates: state.discoveredPlaceDates,
+      lastActionAt:state.lastActionAt,
+      achievementIds: state.achievementIds,
+      totalLoginDays: state.totalLoginDays,
+      lastLoginDate: state.lastLoginDate,
+      feedWindowDate: state.feedWindowDate,
+      feedWindowCount: state.feedWindowCount,
+      lastFeedAt: state.lastFeedAt,
+      healthFlagRecovered: state.healthFlagRecovered,
+      petEffectiveDate: state.petEffectiveDate,
+      petEffectiveCount: state.petEffectiveCount,
+      wipeEffectiveDate: state.wipeEffectiveDate,
+      wipeEffectiveCount: state.wipeEffectiveCount,
+      lastReturnHandledAt: state.lastReturnHandledAt,
+      blinkTimer: state.blinkTimer,
+      nextBlinkAt: state.nextBlinkAt,
+      doubleBlinkQueued: state.doubleBlinkQueued,
+      earTilt: state.earTilt,
+      tailLag: state.tailLag,
+      cloudPhase: state.cloudPhase
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+  }catch(e){}
+}
+function loadState(){
+  try{
+    const raw=localStorage.getItem(STORAGE_KEY);
+    if(!raw) return;
+    const data=JSON.parse(raw);
+    state.hunger=data.hunger ?? state.hunger;
+    state.comfort=data.comfort ?? state.comfort;
+    state.cleanliness=data.cleanliness ?? state.cleanliness;
+    state.trust=data.trust ?? state.trust;
+    state.shortMemory={...state.shortMemory, ...(data.shortMemory||{})};
+    state.longMemory={...state.longMemory, ...(data.longMemory||{})};
+    state.growthProfile={...state.growthProfile, ...(data.growthProfile||{})};
+    state.weather=data.weather || state.weather;
+    state.reportHistory=Array.isArray(data.reportHistory) ? data.reportHistory.slice(-30) : [];
+    state.collection = Array.isArray(data.collection) ? data.collection : [];
+    state.omiyageBag = Array.isArray(data.omiyageBag) ? data.omiyageBag : [];
+    state.actionCounts = { ...state.actionCounts, ...(data.actionCounts || {}) };
+    state.consecutiveDays = data.consecutiveDays || 0;
+    state.lastVisitDate = data.lastVisitDate || null;
+    state.badges = Array.isArray(data.badges) ? data.badges : [];
+    state.todayChecked = !!data.todayChecked;
+    state.dailyDone = Array.isArray(data.dailyDone) ? data.dailyDone : [];
+    state.petStreak = data.petStreak || 0;
+    state.lastPetAt = data.lastPetAt || 0;
+    state.tomorrowWeather = data.tomorrowWeather || null;
+    state.lastMofuAt = data.lastMofuAt || 0;
+    state.diaryEntries = Array.isArray(data.diaryEntries) ? data.diaryEntries : [];
+    state.lastReport = data.lastReport || null;
+    state.currentColorId = data.currentColorId || state.currentColorId;
+    state.lastColorSetDate = data.lastColorSetDate || null;
+    state.colorDailySamples = Array.isArray(data.colorDailySamples) ? data.colorDailySamples : [];
+    state.discoveredWho = Array.isArray(data.discoveredWho) ? data.discoveredWho : [];
+    state.discoveredPlaces = Array.isArray(data.discoveredPlaces) ? data.discoveredPlaces : [];
+    state.collectedItems = Array.isArray(data.collectedItems) ? data.collectedItems : [];
+    state.maxDistance = data.maxDistance || 0;
+    state.todayWho = Array.isArray(data.todayWho) ? data.todayWho : [];
+    state.todayPlaces = Array.isArray(data.todayPlaces) ? data.todayPlaces : [];
+    state.todayItems = Array.isArray(data.todayItems) ? data.todayItems : [];
+    state.todayMaxDistance = data.todayMaxDistance || 0;
+    state.lastTodaySummary = data.lastTodaySummary || null;
+    state.tutorialDone = !!data.tutorialDone;
+    state.firstLaunchDate = data.firstLaunchDate || null;
+    state.personality = data.personality || state.personality;
+    state.currentFoodId = data.currentFoodId || state.currentFoodId;
+    state.lastMorningFeed = data.lastMorningFeed || null;
+    state.lastEveningFeed = data.lastEveningFeed || null;
+    state.lastNightWipe = data.lastNightWipe || null;
+    state.mofuStreak = data.mofuStreak || 0;
+    state.lastMofuDate = data.lastMofuDate || null;
+    state.completedSets = Array.isArray(data.completedSets) ? data.completedSets : [];
+    state.discoveredPlaceDates = data.discoveredPlaceDates || {};
+    state.consecutiveDays = data.consecutiveDays || 0;
+    state.lastVisitDate = data.lastVisitDate || null;
+    state.badges = Array.isArray(data.badges) ? data.badges : [];
+    state.lastActionAt=data.lastActionAt || state.lastActionAt;
+    state.achievementIds = Array.isArray(data.achievementIds) ? data.achievementIds : [];
+    state.totalLoginDays = data.totalLoginDays || 0;
+    state.lastLoginDate = data.lastLoginDate || null;
+    state.feedWindowDate = data.feedWindowDate || null;
+    state.feedWindowCount = data.feedWindowCount || 0;
+    state.lastFeedAt = data.lastFeedAt || 0;
+    state.healthFlagRecovered = !!data.healthFlagRecovered;
+    state.petEffectiveDate = data.petEffectiveDate || null;
+    state.petEffectiveCount = data.petEffectiveCount || 0;
+    state.wipeEffectiveDate = data.wipeEffectiveDate || null;
+    state.wipeEffectiveCount = data.wipeEffectiveCount || 0;
+    state.lastReturnHandledAt = data.lastReturnHandledAt || 0;
+    state.blinkTimer = data.blinkTimer || state.blinkTimer;
+    state.nextBlinkAt = data.nextBlinkAt || state.nextBlinkAt;
+    state.doubleBlinkQueued = !!data.doubleBlinkQueued;
+    state.earTilt = data.earTilt || 0;
+    state.tailLag = data.tailLag || 0;
+    state.cloudPhase = data.cloudPhase || 0;
+  }catch(e){}
+}
+
+function addUnique(arr, value){
+  if(!value) return false;
+  if(arr.includes(value)) return false;
+  arr.push(value);
+  return true;
+}
+function formatDistanceLabel(m){
+  if(m >= 180) return `${m}m　ぬれ土のくぼみの奥まで`;
+  if(m >= 140) return `${m}m　一本木のかげの先まで`;
+  if(m >= 110) return `${m}m　牧場の柵のそばまで`;
+  if(m >= 70) return `${m}m　風見の坂まで`;
+  return `${m}m　寝草のくぼみのあたり`;
+}
+function resetTodaySummary(){
+  state.todayWho = [];
+  state.todayPlaces = [];
+  state.todayItems = [];
+  state.todayMaxDistance = 0;
+  state.lastTodaySummary = null;
+  state.pendingSummary = false;
+}
+function buildTodaySummaryHtml(){
+  const items = (arr) => arr.length ? arr.map(v => `<div class="summaryItem">${v}</div>`).join('') : '<div class="summaryItem">特になし</div>';
+  const addNewTags = (arr) => arr.length ? arr.map(v => {
+    const isNew = state.lastTodaySummary && state.lastTodaySummary.newWho?.includes(v) || state.lastTodaySummary?.newPlaces?.includes(v) || state.lastTodaySummary?.newItems?.includes(v);
+    return `<div class="summaryItem">${v}${isNew ? '<span class="newTag">NEW</span>' : ''}</div>`;
+  }).join('') : '<div class="summaryItem">特になし</div>';
+  const dist = state.lastTodaySummary ? state.lastTodaySummary.todayMaxDistance : state.todayMaxDistance;
+  return `
+    <div class="summaryGrid todayGrid">
+      <div class="summaryBlock">
+        <div class="summaryHead">今日会った相手</div>
+        ${addNewTags(state.lastTodaySummary ? state.lastTodaySummary.todayWho : state.todayWho)}
+      </div>
+      <div class="summaryBlock">
+        <div class="summaryHead">今日行った場所</div>
+        ${addNewTags(state.lastTodaySummary ? state.lastTodaySummary.todayPlaces : state.todayPlaces)}
+      </div>
+      <div class="summaryBlock">
+        <div class="summaryHead">今日拾ったもの</div>
+        ${addNewTags(state.lastTodaySummary ? state.lastTodaySummary.todayItems : state.todayItems)}
+      </div>
+      <div class="summaryBlock">
+        <div class="summaryHead">今日の到達距離</div>
+        <div class="summaryItem" style="font-weight:900;color:#254a71">${formatDistanceLabel(dist || 0)}</div>
+        <div class="summarySub">ここまで行けるようになりました</div>
+      </div>
+    </div>`;
+}
+function showTodaySummary(){
+  if(!state.lastTodaySummary) return;
+  document.getElementById('summaryBody').innerHTML = buildTodaySummaryHtml();
+  document.getElementById('summaryPanel').classList.add('show');
+}
+
+
+function pickSignal() {
+  const pool = MOKORON_SIGNALS.filter(s => s.cond(state));
+  const total = pool.reduce((sum, s) => sum + s.weight, 0);
+  let r = Math.random() * total;
+  for (const s of pool) {
+    r -= s.weight;
+    if (r <= 0) return s.emoji;
+  }
+  return '🌿';
+}
+function checkBadges() {
+  BADGES.forEach(b => {
+    if (!state.badges.includes(b.id) && b.cond(state)) {
+      state.badges.push(b.id);
+      setTimeout(() => {
+        showReport(`🏅 ${b.label}`, 'モコロンとのつながりが、また少し深まりました。');
+      }, 1500);
+      saveState();
+    }
+  });
+}
+function resetTodaySummary() {
+  state.todayWho = [];
+  state.todayPlaces = [];
+  state.todayItems = [];
+  state.todayMaxDistance = 0;
+  state.lastTodaySummary = null;
+  state.pendingSummary = false;
+}
+function checkConsecutiveDays() {
+  const today = new Date().toDateString();
+  if (state.lastVisitDate === today){
+    maybeRefreshMokoronColor(today);
+    return;
+  }
+  if (state.lastVisitDate) {
+    recordColorDailySample(state.lastVisitDate);
+  }
+  const yesterday = new Date(Date.now() - 86400000).toDateString();
+  if (state.lastVisitDate) {
+    state.diaryEntries = [...(state.diaryEntries||[]), { date:new Date().toLocaleDateString('ja-JP'), text:generateDiaryEntry() }].slice(-14);
+  }
+  state.consecutiveDays = state.lastVisitDate === yesterday ? (state.consecutiveDays || 0) + 1 : 1;
+  state.lastVisitDate = today;
+  resetTodaySummary();
+  resetDailyTasks();
+  state.todayChecked = true;
+  state.todayEvening = false;
+  state.reportTone = 'normal';
+  maybeRefreshMokoronColor(today);
+  saveState();
+  checkDailyTasks();
+  checkBadges();
+  checkAchievements();
+  registerLoginDay();
+  checkAnniversary();
+}
+function showReturnChecklist() {
+  const away = Date.now() - state.lastActionAt;
+  if (away < 60000) return;
+  queueRitualPanel();
+}
+function onReturn() {
+  if (!state.tutorialDone || !appBooted) return;
+  const away = Date.now() - state.lastActionAt;
+  const mins = Math.floor(away / 60000);
+  if (away < 30000) return;
+  if (state.lastReturnHandledAt && state.lastReturnHandledAt >= state.lastActionAt) return;
+  state.lastReturnHandledAt = Date.now();
+
+  state.todayChecked = true;
+  checkDailyTasks();
+
+  const neglect = getNeglectLevel();
+  const nightMsg = getNightGreeting();
+  let greeting = '';
+  if (nightMsg) greeting = nightMsg;
+  else {
+    const greetings = [
+      ['🌿','👀','🍃'],
+      ['🥺','🌸','…'],
+      ['😔','🍚','🌧️'],
+      ['🌙…','…','👀…'],
+      ['😶','🫥','…']
+    ];
+    const h = getNowHour();
+    greeting = pick(greetings[neglect]);
+    if (neglect <= 1 && h >= 17 && !state.todayEvening) {
+      greeting = pick(['🌇…','⏳🤍','👀']);
+      state.todayEvening = true;
+    }
+  }
+
+  setTimeout(() => showBubble(greeting), 500);
+
+  if (neglect >= 1) state.comfort = clamp(state.comfort - (8 * neglect), 0, 100);
+  if (neglect >= 2) state.hunger = clamp(state.hunger + (12 * neglect), 0, 100);
+  if (neglect >= 3) state.trust = clamp(state.trust - 3, 0, 100);
+  state.reportTone = neglect >= 3 ? 'lonely' : neglect >= 1 ? 'mild' : 'normal';
+
+  if (mins >= 1) {
+    maybeSetHealthFlag();
+    const r = chooseReport();
+    showReport(r.short, r.detail);
+    state.lastReportAt = Date.now();
+  }
+
+  checkOmiyage();
+  showReturnChecklist();
+  checkMorningHint();
+  setCPU();
+  decideMood();
+  updateDistanceLayout();
+  drawMokoron();
+  saveState();
+}
+
+function getPetReaction() {
+  const contextReaction = getPetContextReaction();
+  if (contextReaction) return contextReaction;
+  const now = Date.now();
+  if (now - state.lastPetAt > 3000) state.petStreak = 0;
+  state.petStreak++;
+  state.lastPetAt = now;
+  const stage = getTrustStage();
+  if (stage >= 2) {
+    const streak_reactions = [
+      [1, TRUST_PET_WORDS[stage][0]],
+      [3, TRUST_PET_WORDS[stage][1]],
+      [6, stage >= 3 ? TRUST_PET_WORDS[stage][2] : '✨'],
+      [12, stage >= 3 ? '🫶✨' : '😪'],
+      [20, '💤'],
+    ];
+    let reaction = streak_reactions[0][1];
+    for (const [count, text] of streak_reactions) if (state.petStreak >= count) reaction = text;
+    return reaction;
+  }
+  return pick(TRUST_PET_WORDS[stage]);
+}
+function resetDailyTasks() {
+  state.actionCounts.petting_today = 0;
+  state.actionCounts.feeding_today = 0;
+  state.actionCounts.cleaning_today = 0;
+  state.dailyDone = [];
+  state.todayChecked = false;
+}
+function checkDailyTasks() {
+  const newDone = [];
+  DAILY_TASKS.forEach(task => {
+    if (state.dailyDone.includes(task.id)) return;
+    if (task.check(state)) {
+      state.dailyDone.push(task.id);
+      state[task.reward] = clamp(state[task.reward] + task.amount, 0, 100);
+      newDone.push(task.label);
+    }
+  });
+  if (newDone.length) {
+    showBubble('✅🌟');
+    saveState();
+  }
+}
+function canMofu() {
+  return Date.now() - (state.lastMofuAt || 0) > 86400000;
+}
+function updateMofuBtn(){ const btn=document.getElementById('btnMofu'); if(!btn) return; btn.classList.toggle('dim', !canMofu()); const streak=state.mofuStreak||0; const icon=btn.querySelector('.icon'); if(icon) icon.textContent = streak>=7 ? '💫' : streak>=3 ? '✨' : '🌟'; btn.title = canMofu() ? '' : '今日はもうつかった'; }
+function doMofu(){ if(!canMofu()){ showBubble('…'); return; } state.impactX=2.2; state.impactY=-1.0; const today=new Date().toDateString(), yesterday=new Date(Date.now()-86400000).toDateString(); if(state.lastMofuDate===yesterday) state.mofuStreak=(state.mofuStreak||0)+1; else if(state.lastMofuDate!==today) state.mofuStreak=1; state.lastMofuDate=today; state.lastMofuAt=Date.now(); const multi=Math.min(3,1 + ((state.mofuStreak||1)-1)*0.25); state.comfort=clamp(state.comfort+Math.round(30*multi),0,100); state.trust=clamp(state.trust+Math.round(8*multi),0,100); state.cleanliness=clamp(state.cleanliness+Math.round(15*multi),0,100); state.mood='happy'; state.dist='near'; updateGrowthByCare('mofu');refreshColorFromGrowth(); const streakMsg=state.mofuStreak>=7?'🌟🌟':state.mofuStreak>=3?'🌟✨':'🌟'; showBubble(streakMsg); checkBadges(); checkAchievements(); updateMofuBtn(); saveState(); }
+function generateTomorrowWeather() {
+  const transitions = {
+    '晴れ':    ['晴れ','晴れ','くもり','風つよめ'],
+    'くもり':  ['晴れ','くもり','くもり','雨あがり'],
+    '風つよめ':['くもり','風つよめ','雨あがり','晴れ'],
+    '雨あがり':['晴れ','晴れ','くもり','晴れ'],
+  };
+  const pool = transitions[state.weather] || WEATHER_NAMES;
+  state.tomorrowWeather = pick(pool);
+  saveState();
+}
+function getSeasonalWhat() {
+  const month = new Date().getMonth() + 1;
+  return SEASONAL_WHAT[month] || null;
+}
+function generateDiaryEntry() {
+  for (const fn of DIARY_TEMPLATES) {
+    const text = fn(state);
+    if (text) return text;
+  }
+  return 'きょうもいちにちがおわった。';
+}
+function checkOmiyage() {
+  const away = Date.now() - state.lastActionAt;
+  const mins = Math.floor(away / 60000);
+  if (mins < 5) return;
+  const month = new Date().getMonth() + 1;
+  const seasonal = SEASONAL_OMIYAGE[month];
+  const allOmiyage = seasonal ? [...OMIYAGE_TABLE, seasonal] : [...OMIYAGE_TABLE];
+  const candidates = allOmiyage.filter(o => mins >= o.minMins && mins <= o.maxMins);
+  if (!candidates.length) return;
+  const weighted = candidates.flatMap(o => Array(4 - o.rarity).fill(o));
+  const got = pick(weighted);
+  const isNew = !state.omiyageBag.includes(got.id);
+  if (isNew) state.omiyageBag.push(got.id);
+  setTimeout(() => {
+    showReport(`${got.emoji} おみやげ${isNew ? '（はじめて！）' : ''}`, `モコロンが「${got.name}」を持って帰ってきました。
+${mins}分のあいだ、どこかで拾っていたようです。`);
+    if (isNew) addUnique(state.collectedItems, got.name);
+    state.mood = 'happy';
+    drawMokoron();
+    checkOmiyageSets();
+    renderHistory();
+    saveState();
+  }, 1000);
+}
+
+
+function buildReturnNeeds() {
+  const needs = [];
+  if (state.hunger > 55) needs.push({ icon:'🍚', label:'お腹が空いています', action:'feed' });
+  if (state.cleanliness < 55) needs.push({ icon:'🧼', label:'少し汚れています', action:'wipe' });
+  if (state.comfort < 50 || state.shortMemory.neglect > 35) needs.push({ icon:'👋', label:'なでてあげると落ち着きます', action:'pet' });
+  return needs;
+}
+function queueRitualPanel() {
+  const needs = buildReturnNeeds();
+  if (!needs.length) {
+    state.pendingRitual = false;
+    state.ritualAction = null;
+    state.ritualText = '今日は大きな手当てはいらなさそうです。\n少し見守るだけでも大丈夫です。';
+    return;
+  }
+  const top = needs[0];
+  state.pendingRitual = true;
+  state.ritualAction = top.action;
+  state.ritualText = `${top.icon} ${top.label}。\nいちばん最初は、これをしてあげるのがおすすめです。`;
+}
+function openRitualPanel() {
+  const panel = document.getElementById('ritualPanel');
+  document.getElementById('ritualLead').textContent = state.ritualText || 'まずは少し様子を見てみましょう。';
+  document.getElementById('ritualAction').textContent =
+    state.ritualAction === 'feed' ? 'ごはんにする' :
+    state.ritualAction === 'wipe' ? 'ふいてあげる' :
+    state.ritualAction === 'pet' ? 'なでてあげる' : '閉じる';
+  panel.classList.add('show');
+}
+function runRitualAction() {
+  const action = state.ritualAction;
+  document.getElementById('ritualPanel').classList.remove('show');
+  state.pendingRitual = false;
+  if (action === 'feed') openFoodMenu();
+  else if (action === 'wipe') doWipe();
+  else if (action === 'pet') doPet();
+}
+
+
+function getNowHour(){ return new Date().getHours(); }
+function getTrustStage(){ if(state.trust >= 90) return 4; if(state.trust >= 70) return 3; if(state.trust >= 45) return 2; if(state.trust >= 20) return 1; return 0; }
+function getMealBonus(){ const h=getNowHour(); if(h>=6&&h<9) return { type:'morning', label:'朝ごはん', hungerBonus:8, trustBonus:3 }; if(h>=18&&h<21) return { type:'evening', label:'夕ごはん', hungerBonus:8, trustBonus:3 }; return null; }
+function getShowerBonus(){ const h=getNowHour(); return (h>=20&&h<23) ? { label:'夜のシャワー', comfortBonus:12, trustBonus:2 } : null; }
+function getAwayMins(){ return Math.floor((Date.now() - state.lastActionAt) / 60000); }
+function getNeglectLevel(){ const mins=getAwayMins(); if(mins>=2880) return 4; if(mins>=1440) return 3; if(mins>=360) return 2; if(mins>=60) return 1; return 0; }
+function applyReportTone(text){ if(state.reportTone === 'lonely') return text + '\nそれでも、帰ってきた。'; if(state.reportTone === 'mild') return text; return text; }
+function maybeSetHealthFlag(){ if(Math.random()>0.95 && !state.healthFlag){ state.healthFlag = pick(['injured','tired']); state.healthFlagTs = Date.now(); } }
+function tickHealthFlag(){ if(!state.healthFlag) return; const elapsed = Date.now() - state.healthFlagTs; if(elapsed >= 20000 && !state.healthFlagRecovered) state.healthFlagRecovered = true; }
+function appendHealthForeshadow(detail){ if(!state.healthFlag) return detail; if(state.healthFlagRecovered){ const recovery = state.healthFlag==='injured' ? '\n\nさっきのあし、もうなおったみたい。' : '\n\nきょうはいつもの調子にもどっていた。'; state.healthFlag = null; state.healthFlagRecovered = false; return detail + recovery; } return detail + (state.healthFlag==='injured' ? '\n\nすこし、あしをひきずっていた。' : '\n\nなんだか、いつもよりゆっくり歩いていた。'); }
+function getNightGreeting(){ const h=getNowHour(); if(h>=22 || h<4) return pick(['🌙','🌙…','✨🌙','👀🌙','🤍🌙']); return null; }
+function checkMorningHint(){ const h=getNowHour(); if(h<6||h>=10) return; const today=new Date().toDateString(); if(state.lastMorningHint===today) return; state.lastMorningHint=today; saveState(); setTimeout(()=>showBubble(pick(MORNING_HINTS)), 2200); }
+function getMokoronStatus(){ const stage=getTrustStage(); if(state.mood==='sleep') return '草原のどこかで、静かに眠っています。'; if(state.overlay==='gloomy') return '少し元気がない日みたいです。'; if(state.overlay==='dirty') return '草と土で少し汚れています。'; if(state.overlay==='shiny'&&stage>=3) return 'とても機嫌が良さそうです。'; if(stage>=4) return 'あなたのことが、好きみたいです。'; if(stage>=3) return '心を開いてくれています。'; if(stage>=2) return '少しずつ、慣れてきたようです。'; if(stage>=1) return 'まだ様子を見ています。'; return 'まだ警戒しているみたいです。'; }
+function getPersonality(){ return MOKORON_PERSONALITIES.find(p=>p.id===state.personality) || MOKORON_PERSONALITIES[0]; }
+function generatePersonality(){ if(state.personality) return; state.personality = pick(MOKORON_PERSONALITIES).id; saveState(); }
+function getFeedReaction(food){
+  const p=getPersonality(); const stage=getTrustStage();
+  const isFav=p.favCategory && food.category===p.favCategory;
+  const isDislike=p.dislike && food.category===p.dislike;
+  if(food.id==='f_mystery') return pick(['❓','😶','❔✨']);
+  if(food.id==='f_handmade') return stage>=3 ? pick(['🍱💖','🤍🍱','✨']) : pick(['🍱','✨']);
+  if(food.id==='f_clover') return pick(['🍀✨','🍀🤍']);
+  if(isFav){
+    const favWords={'甘い':['🍯💕','🍓💖','🍰✨'],'しょっぱい':['🍙✨','🍜💗','🍲✨'],'自然':['🌿💚','🍃✨','🫐💗'],'飲みもの':['🥛✨','🍵🤍','💧✨']};
+    return pick(favWords[p.favCategory]||['✨']);
+  }
+  if(isDislike){
+    if(p.eatStyle==='picky') return pick(['…','😶','↘️']);
+    return pick(['…','😐','↘️']);
+  }
+  if(p.id==='picky') return Math.random()>.4 ? pick(['✨','💗','🍽️']) : pick(['…','😶','↘️']);
+  const stage_words=[['🍽️'],['🍽️✨','😌'],['🍎✨','🍚💗'],['🍯💖','🍛✨'],['🍯💕','🍚💞']];
+  return pick(stage_words[stage] || stage_words[0]);
+}
+function getPetContextReaction(){ const now=Date.now(); const sinceReport=now-state.lastReportAt; const sincePet=now-state.lastPetAt; if(sinceReport<120000 && !state.lastPetAfterReport){ state.lastPetAfterReport = true; const stage=getTrustStage(); if(stage>=2) return pick(['📖💗','👀✨','🤍']); return '…'; } if(sincePet>1800000 && state.petStreak===0){ const stage=getTrustStage(); if(stage>=3) return pick(['🥺','…','⏳']); if(stage>=1) return '…'; } return null; }
+function getTrustStageMessage(stage){
+  const feedTrust = state.longMemory.feeding_trust || 0;
+  const petRelief = state.longMemory.petting_relief || 0;
+  if (stage === 1) return petRelief > 25 ? 'なでられた記憶が、少し残っているみたいです。' : 'すこしだけ、近づいた気がする。';
+  if (stage === 2) return feedTrust > 20 ? 'ごはんをくれるひとだと、わかってきたみたいです。' : 'なんとなく、このひとはだいじょうぶな気がする。';
+  if (stage === 3) return 'いるだけで、あんしんできる。';
+  if (stage === 4) return 'このひとのことが、すきだと思う。';
+  return '';
+}
+function checkTrustStageUp(){ const stage=getTrustStage(); if(window._lastTrustStage===undefined || window._lastTrustStage<0){ window._lastTrustStage=stage; return; } if(stage>window._lastTrustStage){ window._lastTrustStage=stage; const msg=getTrustStageMessage(stage); if(msg) setTimeout(()=>showReport('🤍 モコロンの気持ち', msg), 1200); decideMood(); updateDistanceLayout(); } }
+const OMIYAGE_POSITIONS = { o_stone:{x:75,y:86}, o_feather:{x:10,y:76}, o_shell:{x:72,y:80}, o_acorn:{x:16,y:86}, o_leaf:{x:78,y:74}, o_glass:{x:70,y:84}, o_button:{x:10,y:84}, o_ribbon:{x:76,y:89}, o_sakura:{x:68,y:72}, o_frost:{x:74,y:78}, o_chestnut:{x:8,y:80}, o_snowball:{x:73,y:83}, o_snail:{x:10,y:85}, o_cicada:{x:76,y:76} };
+const OMIYAGE_DRAW = {
+  o_stone:(ox,oy)=>{const p=OMIYAGE_POSITIONS.o_stone;rect(p.x+ox,p.y+oy,4,3,'#b0a898');rect(p.x+1+ox,p.y+oy,2,1,'#d6d0c8');},
+  o_feather:(ox,oy)=>{const p=OMIYAGE_POSITIONS.o_feather;rect(p.x+ox,p.y+oy,1,6,'#c8bfae');rect(p.x-1+ox,p.y+1+oy,3,1,'#e8e0d4');rect(p.x-2+ox,p.y+3+oy,2,1,'#e8e0d4');},
+  o_shell:(ox,oy)=>{const p=OMIYAGE_POSITIONS.o_shell;rect(p.x+ox,p.y+oy,5,4,'#f5e6c8');rect(p.x+1+ox,p.y+1+oy,3,2,'#ffe8a0');},
+  o_acorn:(ox,oy)=>{const p=OMIYAGE_POSITIONS.o_acorn;rect(p.x+ox,p.y+oy,4,4,'#8b6914');rect(p.x+1+ox,p.y-3+oy,2,3,'#5a4010');},
+  o_leaf:(ox,oy)=>{const p=OMIYAGE_POSITIONS.o_leaf;rect(p.x+ox,p.y+oy,5,3,'#d46020');rect(p.x+1+ox,p.y-1+oy,3,2,'#e07030');rect(p.x+2+ox,p.y+2+oy,1,2,'#8b4010');},
+  o_glass:(ox,oy)=>{const p=OMIYAGE_POSITIONS.o_glass;rect(p.x+ox,p.y+oy,3,3,'#9fd8ff');rect(p.x+1+ox,p.y+oy,1,1,'#ffffff');},
+  o_button:(ox,oy)=>{const p=OMIYAGE_POSITIONS.o_button;rect(p.x+ox,p.y+oy,4,4,'#c87050');rect(p.x+1+ox,p.y+1+oy,2,2,'#e09070');rect(p.x+1+ox,p.y+2+oy,1,1,'#c87050');},
+  o_ribbon:(ox,oy)=>{const p=OMIYAGE_POSITIONS.o_ribbon;rect(p.x+ox,p.y+oy,6,2,'#e03050');rect(p.x-2+ox,p.y-1+oy,2,2,'#e03050');rect(p.x+6+ox,p.y-1+oy,2,2,'#e03050');rect(p.x+1+ox,p.y-1+oy,4,1,'#ff6080');},
+  o_sakura:(ox,oy)=>{const p=OMIYAGE_POSITIONS.o_sakura;rect(p.x+ox,p.y+oy,3,3,'#ffb6c2');rect(p.x+1+ox,p.y-1+oy,1,1,'#ffd0dc');},
+  o_frost:(ox,oy)=>{const p=OMIYAGE_POSITIONS.o_frost;rect(p.x+ox,p.y+oy,1,5,'#dceeff');rect(p.x-2+ox,p.y+2+oy,5,1,'#dceeff');rect(p.x-1+ox,p.y+1+oy,1,1,'#fff');rect(p.x+1+ox,p.y+1+oy,1,1,'#fff');},
+  o_chestnut:(ox,oy)=>{const p=OMIYAGE_POSITIONS.o_chestnut;rect(p.x+ox,p.y+oy,4,4,'#6b3a10');rect(p.x+1+ox,p.y-1+oy,2,2,'#4a7020');},
+  o_snowball:(ox,oy)=>{const p=OMIYAGE_POSITIONS.o_snowball;rect(p.x+ox,p.y+oy,5,4,'#dceeff');rect(p.x+1+ox,p.y-1+oy,3,1,'#fff');},
+  o_snail:(ox,oy)=>{const p=OMIYAGE_POSITIONS.o_snail;rect(p.x+ox,p.y+oy,3,2,'#8b7040');rect(p.x+1+ox,p.y-1+oy,2,1,'#b09060');},
+  o_cicada:(ox,oy)=>{const p=OMIYAGE_POSITIONS.o_cicada;rect(p.x+ox,p.y+oy,4,5,'#c8a860');rect(p.x+1+ox,p.y+oy,2,2,'#e8c870');}
+};
+function checkOmiyageSets(){ OMIYAGE_SETS.forEach(set=>{ if(state.completedSets.includes(set.id)) return; const hasAll=set.needs.every(id=>state.omiyageBag.includes(id)); if(!hasAll) return; state.completedSets.push(set.id); state.trust=clamp(state.trust + set.reward.trust,0,100); state.comfort=clamp(state.comfort + set.reward.comfort,0,100); setTimeout(()=>{ showReport(`${set.emoji} セット完成！「${set.name}」`, `${set.hint}\nモコロンがとても誇らしそうにしています。`); state.mood='happy'; }, 2000); saveState(); }); }
+function checkAnniversary(){ if(!state.firstLaunchDate) return; const start=new Date(state.firstLaunchDate), now=new Date(); const diffDays=Math.floor((now-start)/86400000); [7,14,30,60,100].forEach(days=>{ const key=`anniv_${days}`; if(diffDays>=days && !state.badges.includes(key)){ state.badges.push(key); setTimeout(()=>{ showReport(`🌸 ${days}日目`, days===7 ? 'あのひ、おぼえてる。\n7日まえ、はじめてきてくれた。' : days===14 ? 'もう2週間。\nいつのまにか、あたりまえになってた。' : days===30 ? 'ひとつきがたった。\nこのひとは、ずっといてくれるんだ。' : days===60 ? 'ふたつき。\nここが、すきな場所になった。' : '100日。\nなんか、うれしい。'); }, 2000); saveState(); } }); }
+function isYawnTime(){ const h=getNowHour(); return h>=6 && h<7; }
+function getAvailableFoods(){ const month=(new Date().getMonth()+1); return FOOD_MENU.filter(f => !f.seasonMonth || f.seasonMonth===month); }
+function renderFoodMenu(){
+  const list=document.getElementById('foodMenuList');
+  const p = getPersonality();
+  let foods = getAvailableFoods();
+  foods = [
+    ...foods.filter(f => p.favCategory && f.category === p.favCategory),
+    ...foods.filter(f => f.category !== p.favCategory && f.category !== p.dislike),
+    ...foods.filter(f => p.dislike && f.category === p.dislike),
+  ];
+  list.innerHTML = foods.map(food => {
+    const isFav = p.favCategory && food.category === p.favCategory;
+    const isDislike = p.dislike && food.category === p.dislike;
+    const isSeason = !!food.seasonMonth;
+    const badge = isFav ? '♥ ' : isSeason ? '★ ' : '';
+    const opacity = isDislike ? 'opacity:.45;' : '';
+    return `<button class="foodItem" data-food="${food.id}" style="${opacity}border-color:${isFav?'#ffb6c2':isSeason?'#ffd700':'rgba(16,34,58,.08)'}"><span class="emo">${food.emoji}</span><span>${badge}${food.name}</span></button>`;
+  }).join('');
+  list.querySelectorAll('.foodItem').forEach(btn => btn.addEventListener('click', () => {
+    closeFoodMenu();
+    doFeed(btn.getAttribute('data-food'));
+  }));
+}
+function openFoodMenu(){
+  if (!canFeedNow()) {
+    const waitMs = Math.max(0, ((state.lastFeedAt || 0) + 3 * 3600 * 1000) - Date.now());
+    const waitH = Math.max(1, Math.ceil(waitMs / 3600000));
+    showBubble(`🍚⏳${waitH}`);
+    return;
+  }
+  const p = getPersonality();
+  const sub = document.getElementById('foodMenuSub');
+  if (sub) {
+    sub.textContent = p.favCategory ? `${p.label}みたい（${p.favCategory}が好き）` : p.label;
+  }
+  renderFoodMenu();
+  document.getElementById('foodMenuOverlay').classList.add('show');
+}
+function closeFoodMenu(){ document.getElementById('foodMenuOverlay').classList.remove('show'); }
+function showTutorial(){ window.tutorialIndex=0; renderTutorialSlide(); const ov=document.getElementById('tutorialOverlay'); ov.style.pointerEvents='auto'; requestAnimationFrame(()=>{ ov.style.opacity='1'; }); }
+function getLastTutorialSlide(){ const p=getPersonality(); return { icon:'🌱', title:'はじまります', body:p.favCategory ? `このモコロンは${p.favCategory}が好きみたいです。\nどんな子か、ゆっくり確かめてみてください。` : 'モコロンとの時間を、\nゆっくり育ててください。' }; }
+function renderTutorialSlide() {
+  const idx = window.tutorialIndex || 0;
+  const slide = idx === TUTORIAL_SLIDES.length - 1 ? getLastTutorialSlide() : TUTORIAL_SLIDES[idx];
+
+  document.getElementById('tutorialIcon').textContent = slide.icon;
+  document.getElementById('tutorialTitle').textContent = slide.title;
+
+  if (idx === 0) {
+    document.getElementById('tutorialBody').innerHTML = slide.body.replace('謎生物', '<strong>謎生物</strong>');
+  } else {
+    document.getElementById('tutorialBody').textContent = slide.body;
+  }
+
+  document.getElementById('tutorialDots').innerHTML = TUTORIAL_SLIDES.map((_, i) =>
+    `<div style="width:8px;height:8px;border-radius:50%;background:${i === idx ? '#254a71' : '#c8d8e8'};transition:background .2s"></div>`
+  ).join('');
+
+  document.getElementById('tutorialNext').textContent =
+    idx === TUTORIAL_SLIDES.length - 1 ? 'はじめる 🌿' : 'つぎへ';
+}
+function advanceTutorial(){ if((window.tutorialIndex||0) < TUTORIAL_SLIDES.length-1){ window.tutorialIndex=(window.tutorialIndex||0)+1; renderTutorialSlide(); } else closeTutorial(); }
+function closeTutorial(){ const ov=document.getElementById('tutorialOverlay'); ov.style.opacity='0'; ov.style.pointerEvents='none'; state.tutorialDone=true; state.firstLaunchDate=new Date().toDateString(); state.lastActionAt=Date.now(); saveState(); updateTopButtons(); updateGroundHint(true); setTimeout(()=>showBubble('🌿✨'),400); }
+
+
+function daysBetweenDates(a, b){
+  return Math.floor((new Date(a).setHours(0,0,0,0) - new Date(b).setHours(0,0,0,0)) / 86400000);
+}
+function normalizeGrowth(){
+  const g=state.growthProfile||{};
+  ['bond','appetite','poise','curiosity','wild','dawn','dusk','rain','wind'].forEach(k=>g[k]=clamp(Math.round(g[k]||0),0,100));
+  state.growthProfile=g;
+}
+function shapeGrowth(changes){
+  normalizeGrowth();
+  Object.entries(changes||{}).forEach(([k,v])=>{
+    state.growthProfile[k]=clamp((state.growthProfile[k]||0)+v,0,100);
+  });
+}
+function updateGrowthByCare(kind, extra={}){
+  const h=getHour();
+  const rainy=state.weather==='雨あがり';
+  const windy=state.weather==='風つよめ';
+  if(kind==='pet'){
+    shapeGrowth({bond:2, poise:1, wild:-1, dusk:h>=18?1:0});
+    if(h<10) shapeGrowth({dawn:2});
+  }
+  if(kind==='feed'){
+    shapeGrowth({appetite:3, bond:1, wild:-1});
+    if(h<10 || state.lastMorningFeed===new Date().toDateString()) shapeGrowth({dawn:3});
+    if(h>=18 || state.lastEveningFeed===new Date().toDateString()) shapeGrowth({dusk:2});
+  }
+  if(kind==='wipe'){
+    shapeGrowth({poise:3, bond:1, wild:-2});
+    if(state.lastNightWipe===new Date().toDateString() || h>=20) shapeGrowth({dusk:3});
+  }
+  if(kind==='mofu'){
+    shapeGrowth({bond:4, poise:2, wild:-1, dusk:h>=18?2:0});
+  }
+  if(rainy) shapeGrowth({rain:1});
+  if(windy) shapeGrowth({wind:1, curiosity:1});
+  if(extra.foodCategory==='自然') shapeGrowth({curiosity:2, wild:1});
+  if(extra.foodCategory==='甘い') shapeGrowth({bond:1, appetite:1, wild:-1});
+  if(extra.foodCategory==='しょっぱい') shapeGrowth({poise:1, appetite:2});
+  if(extra.foodCategory==='飲みもの') shapeGrowth({poise:1, dawn:h<10?1:0});
+  if(extra.isFav) shapeGrowth({bond:2, appetite:2});
+  if(extra.isDislike) shapeGrowth({wild:1, appetite:-1});
+}
+function updateGrowthByRoam(placeDist, category, weather, who){
+  const farBoost=placeDist>=140?4:placeDist>=110?3:placeDist>=70?2:1;
+  const catMap={観察:{curiosity:2},探索:{curiosity:3,wild:2},交流:{bond:who?2:1},収集:{curiosity:2,poise:1},休息:{poise:2,wild:-1},失敗:{wild:1},発見:{curiosity:3},帰還:{poise:2,bond:1}};
+  shapeGrowth(catMap[category]||{});
+  shapeGrowth({wild:farBoost-1, curiosity:Math.max(1,farBoost-1)});
+  if(weather==='雨あがり') shapeGrowth({rain:2, poise:1});
+  if(weather==='風つよめ') shapeGrowth({wind:2, curiosity:1});
+  if(state.reportTone==='lonely') shapeGrowth({wild:2, bond:-1});
+  if(state.healthFlagRecovered) shapeGrowth({poise:2});
+}
+function refreshColorFromGrowth(force=false){
+  normalizeGrowth();
+  const today=new Date().toDateString();
+  if(force){
+    recordColorDailySample(today);
+    const nextId=decideMokoronColorId(getColorAverages());
+    applyMokoronPalette(nextId);
+    drawMokoron();
+    saveState();
+    return;
+  }
+  const key=[state.currentColorId,state.growthProfile.bond,state.growthProfile.appetite,state.growthProfile.poise,state.growthProfile.curiosity,state.growthProfile.wild,state.growthProfile.dawn,state.growthProfile.dusk,state.growthProfile.rain,state.growthProfile.wind].join(':');
+  if(state._lastColorKey===key) return;
+  state._lastColorKey=key;
+  recordColorDailySample(today);
+  const nextId=decideMokoronColorId(getColorAverages());
+  if(nextId!==state.currentColorId){
+    applyMokoronPalette(nextId);
+    drawMokoron();
+    saveState();
+  }
+}
+function buildColorSample(dateStr){
+  normalizeGrowth();
+  const g=state.growthProfile;
+  const petAff = state.shortMemory.petting || 0;
+  const mofuAff = Math.min(100, (state.mofuStreak || 0) * 12);
+  const affection = Math.round(clamp(state.trust * 0.30 + petAff * 0.18 + mofuAff * 0.10 + g.bond * 0.42, 0, 100));
+
+  const nightBonus = state.lastNightWipe === dateStr ? 100 : 0;
+  const clean = Math.round(clamp(state.cleanliness * 0.34 + (state.longMemory.cleaning_relief || 0) * 0.18 + nightBonus * 0.10 + g.poise * 0.38, 0, 100));
+
+  const maxDistNorm = Math.min(100, (state.maxDistance / 188) * 100);
+  const todayDistNorm = Math.min(100, (state.todayMaxDistance / 188) * 100);
+  const placeNorm = Math.min(100, (state.discoveredPlaces.length || 0) * 6);
+  const omiyageNorm = Math.min(100, (state.omiyageBag.length || 0) * 8);
+  const adventure = Math.round(clamp(maxDistNorm * 0.24 + todayDistNorm * 0.12 + placeNorm * 0.10 + omiyageNorm * 0.10 + g.curiosity * 0.24 + g.wild * 0.20, 0, 100));
+
+  const toneVal = state.reportTone === 'lonely' ? 100 : state.reportTone === 'mild' ? 50 : 0;
+  const neglect = Math.round(clamp((state.shortMemory.neglect || 0) * 0.22 + state.hunger * 0.18 + (100 - state.comfort) * 0.14 + toneVal * 0.12 + g.wild * 0.20 + Math.max(0, g.appetite - g.poise) * 0.14, 0, 100));
+
+  const routine = Math.round(clamp((state.consecutiveDays || 0) * 4 + (state.longMemory.feeding_trust || 0) * 0.35 + (state.longMemory.cleaning_relief || 0) * 0.32 + g.poise * 0.18 + g.dawn * 0.08 + g.dusk * 0.08, 0, 100));
+  return {date: dateStr, affection, clean, adventure, neglect, routine};
+}
+function recordColorDailySample(dateStr){
+  if(!dateStr) return;
+  const sample = buildColorSample(dateStr);
+  const idx = (state.colorDailySamples || []).findIndex(s => s.date === dateStr);
+  if(idx >= 0) state.colorDailySamples[idx] = sample;
+  else state.colorDailySamples.push(sample);
+  state.colorDailySamples = state.colorDailySamples.slice(-3);
+}
+function getColorAverages(){
+  const base = (state.colorDailySamples && state.colorDailySamples.length) ? state.colorDailySamples : [buildColorSample(new Date().toDateString())];
+  const sum = base.reduce((acc, s) => {
+    acc.affection += s.affection; acc.clean += s.clean; acc.adventure += s.adventure; acc.neglect += s.neglect; acc.routine += s.routine; return acc;
+  }, {affection:0, clean:0, adventure:0, neglect:0, routine:0});
+  const n = base.length || 1;
+  return {
+    affection: Math.round(sum.affection / n),
+    clean: Math.round(sum.clean / n),
+    adventure: Math.round(sum.adventure / n),
+    neglect: Math.round(sum.neglect / n),
+    routine: Math.round(sum.routine / n)
+  };
+}
+function decideMokoronColorId(avg){
+  normalizeGrowth();
+  const g=state.growthProfile;
+  if(avg.affection >= 90 && avg.clean >= 86 && avg.adventure >= 74 && avg.neglect < 16 && state.completedSets.length >= 1 && (state.consecutiveDays || 0) >= 7){
+    return 'rainbow_prism';
+  }
+
+  const appetiteLead = g.appetite - g.poise;
+  const cuddleLead = g.bond - g.wild;
+  const roamLead = g.curiosity + g.wild;
+  const weatherLead = Math.max(g.rain, g.wind);
+
+  if(avg.neglect >= 82){
+    if(g.wind > 58) return 'midnight_navy';
+    if(g.rain > 58) return 'rain_gray';
+    if(appetiteLead > 18) return state.hunger > 82 ? 'dry_straw' : 'muted_ochre';
+    if(state.cleanliness < 32) return 'dusty_brown';
+    return g.wild > 54 ? 'shadow_teal' : 'ash_gray';
+  }
+  if(avg.neglect >= 68){
+    if(state.cleanliness < 45) return 'muddy_beige';
+    if(g.rain > 54) return 'cloudy_bluegray';
+    if(g.wind > 50) return 'dusty_violet';
+    if(appetiteLead > 14) return 'muted_ochre';
+    return g.wild > 48 ? 'wilted_green' : 'ash_gray';
+  }
+
+  if(cuddleLead >= 34){
+    if(avg.clean >= 72 && g.poise >= 62) return 'affection_pink';
+    if(g.dusk >= 56) return 'pale_peach';
+    return avg.affection >= 78 ? 'sakura' : 'warm_beige';
+  }
+
+  if(g.poise >= 76 && g.dusk >= 42){
+    if(avg.clean >= 86) return 'white_gold';
+    return g.dawn >= 36 ? 'sunlight_yellow' : 'cream';
+  }
+
+  if(roamLead >= 122){
+    if(g.wind >= 54) return 'star_sky_blue';
+    if(g.rain >= 50) return 'soft_water';
+    return g.wild >= 58 ? 'adventure_teal' : 'pale_sky';
+  }
+
+  if(g.appetite >= 72){
+    if(g.dawn >= 42) return 'honey';
+    if(appetiteLead >= 16) return 'amber_orange';
+    return 'sunset_orange';
+  }
+
+  if(g.rain >= 62){
+    return avg.clean >= 62 ? 'soft_water' : 'cloudy_bluegray';
+  }
+  if(g.wind >= 62){
+    return avg.adventure >= 60 ? 'star_sky_blue' : 'shadow_teal';
+  }
+  if(g.curiosity >= 64){
+    return state.omiyageBag.length >= 5 ? 'meadow_lime' : 'young_leaf';
+  }
+
+  if(avg.clean >= 74 && avg.affection >= 66) return 'cream';
+  if(avg.affection >= 72) return 'warm_beige';
+  if(avg.adventure >= 62) return 'young_leaf';
+  return 'plain_white';
+}
+function applyMokoronPalette(colorId){
+  const p = MOKORON_COLOR_PALETTES[colorId] || MOKORON_COLOR_PALETTES.plain_white;
+  state.currentColorId = colorId;
+  C.body = p.body;
+  C.bodyShadow = p.shadow;
+  C.bodyLow = p.low;
+  C.earPink = p.ear;
+  C.cheek = p.cheek;
+  C.accent = p.accent;
+}
+function maybeRefreshMokoronColor(todayStr){
+  if(!state.lastColorSetDate){
+    state.lastColorSetDate = todayStr;
+    applyMokoronPalette(decideMokoronColorId(getColorAverages()));
+    return;
+  }
+  if(daysBetweenDates(todayStr, state.lastColorSetDate) < 3){
+    applyMokoronPalette(state.currentColorId || 'plain_white');
+    return;
+  }
+  const nextId = decideMokoronColorId(getColorAverages());
+  state.lastColorSetDate = todayStr;
+  applyMokoronPalette(nextId);
+}
+
+function renderHistory(){
+  const list=document.getElementById('historyList');
+  const whoHtml = state.discoveredWho.length ? state.discoveredWho.map(v => `<div class="summaryItem">${v}</div>`).join('') : '<div class="summaryItem">まだありません。</div>';
+  const placeHtml = state.discoveredPlaces.length ? state.discoveredPlaces.map(v => { const date=(state.discoveredPlaceDates||{})[v]; return `<div class="summaryItem">${v}${date ? `<span style="font-size:10px;color:#7a9ab5;margin-left:6px">${date}</span>` : ''}</div>`; }).join('') : '<div class="summaryItem">まだありません。</div>';
+  const itemHtml = state.collectedItems.length ? state.collectedItems.map(v => `<div class="summaryItem">${v}</div>`).join('') : '<div class="summaryItem">まだありません。</div>';
+  const treasureHtml = state.collection.length ? state.collection.map(id => {
+    const t = TREASURES.find(item => item.id === id);
+    return t ? `<div class="summaryItem">✨ ${t.name}</div>` : '';
+  }).join('') : '<div class="summaryItem">まだありません。</div>';
+  const setHtml = state.completedSets.length ? state.completedSets.map(id => { const s = OMIYAGE_SETS.find(x => x.id === id); return s ? `<div class="summaryItem">${s.emoji} ${s.name}</div>` : ''; }).join('') : '<div class="summaryItem">まだありません。</div>';
+  const badgeHtml = state.badges.length ? state.badges.map(id => {
+    const b = BADGES.find(item => item.id === id);
+    return b ? `<div class="summaryItem">${b.label}</div>` : '';
+  }).join('') : '<div class="summaryItem">まだありません。</div>';
+  const achievementHtml = (state.achievementIds||[]).length ? state.achievementIds.map(id => {
+    const a = ACHIEVEMENTS.find(item => item.id === id);
+    return a ? `<div class="summaryItem">${a.label}</div>` : '';
+  }).join('') : '<div class="summaryItem">まだありません。</div>';
+  let html = `
+    <div class="summaryGrid" style="margin-bottom:18px">
+      <div class="summaryBlock">
+        <div class="summaryHead">宝物</div>
+        ${treasureHtml}
+      </div>
+      <div class="summaryBlock">
+        <div class="summaryHead">称号</div>
+        ${badgeHtml}
+      </div>
+      <div class="summaryBlock">
+        <div class="summaryHead">アチーブ</div>
+        ${achievementHtml}
+      </div>
+      <div class="summaryBlock">
+        <div class="summaryHead">セット</div>
+        ${setHtml}
+      </div>
+    </div>
+    <div class="summaryGrid" style="margin-bottom:18px">
+      <div class="summaryBlock">
+        <div class="summaryHead">会った相手</div>
+        ${whoHtml}
+      </div>
+      <div class="summaryBlock">
+        <div class="summaryHead">行った場所</div>
+        ${placeHtml}
+      </div>
+      <div class="summaryBlock">
+        <div class="summaryHead">集めたもの</div>
+        ${itemHtml}
+      </div>
+      <div class="summaryBlock">
+        <div class="summaryHead">いちばん遠くまで行った距離</div>
+        <div class="summaryDist">${formatDistanceLabel(state.maxDistance || 0)}</div>
+        <div class="summarySub">モコロンが覚えている最遠記録です</div>
+      </div>
+      <div class="summaryBlock">
+        <div class="summaryHead">明日の予報</div>
+        <div class="summaryDist">${WEATHER_EMOJI[state.tomorrowWeather]||'☀️'} ${state.tomorrowWeather||'晴れ'}</div>
+        <div class="summarySub">明日も会いに来たくなる予報です</div>
+      </div>
+    </div>`;
+  if(state.diaryEntries && state.diaryEntries.length){ html += '<div class="historyItem"><div class="hs">きもち日記</div><div class="hd">' + state.diaryEntries.slice().reverse().map(d => `${d.date}　${d.text}`).join('\n') + '</div></div>'; }
+  if(!state.reportHistory.length){
+    html += '<div class="historyItem"><div class="hd">まだ記録はありません。</div></div>';
+  }else{
+    html += state.reportHistory.slice().reverse().map(item =>
+      `<div class="historyItem"><div class="hs">${item.short}</div><div class="hd">${item.detail}</div></div>`
+    ).join('');
+  }
+  list.innerHTML = html;
+}
+function showReport(shortText,detailText){
+  const d=document.getElementById('reportDrawer');
+  document.getElementById('reportShort').textContent=shortText;
+  const formattedDetail = String(detailText).replace(/。(?!\n)/g, '。\n').replace(/\n{3,}/g, '\n\n').trim();
+  document.getElementById('reportDetail').textContent=formattedDetail;
+  state.lastPetAfterReport = false;
+  state.lastReport = { short: shortText, detail: detailText };
+  updateLastReportBtn();
+  state.reportHistory.push({short:shortText,detail:detailText,ts:Date.now()});
+  if(state.reportHistory.length>30) state.reportHistory=state.reportHistory.slice(-30);
+  renderHistory();
+  saveState();
+  d.classList.add('show');
+}
+function remember(action){state.shortMemory[action]=100;state.lastActionAt=Date.now();if(action==='petting')state.longMemory.petting_relief=clamp(state.longMemory.petting_relief+1,0,100);if(action==='feeding')state.longMemory.feeding_trust=clamp(state.longMemory.feeding_trust+1,0,100);if(action==='cleaning')state.longMemory.cleaning_relief=clamp(state.longMemory.cleaning_relief+1,0,100);}
+function decayMemory(){Object.keys(state.shortMemory).forEach(k=>state.shortMemory[k]=clamp(state.shortMemory[k]-2.5,0,100));if(Date.now()-state.lastActionAt>14000)state.shortMemory.neglect=clamp(state.shortMemory.neglect+4,0,100);else state.shortMemory.neglect=clamp(state.shortMemory.neglect-3,0,100);}
+function decideOverlay(){const careRecent=(state.shortMemory.petting+state.shortMemory.cleaning+state.shortMemory.feeding)/3;if(state.cleanliness<42)state.overlay='dirty';else if(state.comfort<40||state.shortMemory.neglect>45||state.hunger>75)state.overlay='gloomy';else if(careRecent>45&&state.trust>62&&state.cleanliness>68)state.overlay='shiny';else state.overlay='none';}
+function decideMood(){
+  if(isDeepNight() && state.shortMemory.petting < 35 && state.shortMemory.feeding < 35 && state.shortMemory.cleaning < 35){
+    state.mood='sleep';
+    state.dist=state.trust>70?'far':'corner';
+    return;
+  }
+  if(['happy','love','drowsy','sleep'].includes(state.mood))return;
+  if(state.hunger>72&&state.longMemory.feeding_trust>14){state.mood='love';state.dist='near';return;}
+  if(state.shortMemory.petting>45){state.mood='love';state.dist='near';return;}
+  if(state.shortMemory.neglect>56||state.comfort<38){state.mood='idle';state.dist='far';return;}
+  state.mood='idle';
+  state.dist=state.trust>68?'near':'mid';
+}
+function updateRoaming(){
+  const overlayOpen=document.getElementById('reportDrawer').classList.contains('show')||document.getElementById('summaryPanel').classList.contains('show')||document.getElementById('historyPanel').classList.contains('show')||document.getElementById('ritualPanel').classList.contains('show')||document.getElementById('foodMenuOverlay').classList.contains('show')||document.getElementById('tutorialOverlay').style.pointerEvents==='auto';
+  if(overlayOpen) return;
+  if(isDeepNight()){
+    if(state.mood!=='love'&&state.mood!=='happy'){
+      state.mood='sleep';
+      state.dist=state.trust>70?'far':'corner';
+      updateDistanceLayout();
+    }
+    return;
+  }
+  if(state.mood!=='idle'&&state.mood!=='drowsy') return;
+  const roll=Math.random();
+  if(state.trust>=78){
+    state.dist = roll<0.34?'near':roll<0.82?'mid':'far';
+  }else if(state.trust>=55){
+    state.dist = roll<0.18?'near':roll<0.68?'mid':roll<0.92?'far':'corner';
+  }else{
+    state.dist = roll<0.08?'mid':roll<0.62?'far':'corner';
+  }
+  updateDistanceLayout();
+}
+function chooseReport(){
+  const phase=nowPhase();
+  const place=pick(WHERE);
+  const seasonal = getSeasonalWhat(); const weatherFiltered = WHAT.filter(w => w.zones.includes(place.zone) && (!w.weatherOnly || w.weatherOnly === state.weather)); const what=(seasonal && seasonal.zones.includes(place.zone) && Math.random() > 0.6) ? seasonal : pick(weatherFiltered);
+  let who='';
+  if(what.who) who=what.who;
+  else if(Math.random()>.46){
+    const pool=WHO.filter(p=>p.zone.includes(place.zone));
+    if(pool.length) who=pick(pool).name;
+  }
+  const placeDist = PLACE_DISTANCE[place.name] || 0;
+  const newWho = who && addUnique(state.discoveredWho, who);
+  const newPlace = addUnique(state.discoveredPlaces, place.name);
+  if (newPlace) { if (!state.discoveredPlaceDates) state.discoveredPlaceDates = {}; state.discoveredPlaceDates[place.name] = new Date().toLocaleDateString('ja-JP'); }
+  addUnique(state.todayPlaces, place.name);
+  if(who) addUnique(state.todayWho, who);
+  if(placeDist > state.maxDistance) state.maxDistance = placeDist;
+  if(placeDist > state.todayMaxDistance) state.todayMaxDistance = placeDist;
+
+  let itemName = '';
+  if(['収集','発見','帰還'].includes(what.category)){
+    itemName = ({
+      '白い小石を見つけた':'白い小石',
+      '枯れ草をくわえた':'枯れ草',
+      '赤い切れ端を運んだ':'赤い切れ端',
+      '新しい匂いの場所を見つけた':'新しい匂い',
+      '少し誇らしそうに戻ってきた':'小さな成果'
+    })[what.label] || '';
+    if(itemName){
+      addUnique(state.todayItems, itemName);
+      addUnique(state.collectedItems, itemName);
+    }
+  }
+
+  const why=state.mood==='love'?'どうやら、こちらのことを少し思い出していたようです':state.mood==='sleep'?'どうやら、風の弱い場所を選びたかったようです':state.overlay==='dirty'?'どうやら、草と土のにおいが気になっていたようです':'どうやら、気になるものを追っていたようです';
+  const felt=(state.mofuStreak||0) >= 7 ? '今日はとくに機嫌が良さそうだった' : (state.mofuStreak||0) >= 3 ? '少し誇らしそう' : state.mood==='happy' ? '少し誇らしそう' : state.mood==='love' ? 'こちらを気にしているよう' : state.mood==='sleep' ? '静かに落ち着いていた' : state.overlay==='gloomy' ? '少し元気がなさそう' : 'のんびりしていた';
+  updateGrowthByRoam(placeDist, what.category, state.weather, who);
+
+  state.lastTodaySummary = {
+    todayWho:[...state.todayWho],
+    todayPlaces:[...state.todayPlaces],
+    todayItems:[...state.todayItems],
+    todayMaxDistance:state.todayMaxDistance,
+    newWho:newWho && who ? [who] : [],
+    newPlaces:newPlace ? [place.name] : [],
+    newItems:(itemName && state.collectedItems.filter(v=>v===itemName).length===1) ? [itemName] : []
+  };
+  state.pendingSummary = (state.consecutiveDays || 0) >= 2;
+
+  return {
+    short:`${phase}、${place.name}で、${what.label}`,
+    detail:appendHealthForeshadow(applyReportTone(`今日は${phase}、${place.name}${who?`で、${who}と関わりながら、`:'で、'}${what.label}。${why} 最後は、${felt}。 ${AGG[what.category]||''}`))
+  };
+}
+function doPet(){const effective=countEffectiveAction('petting');state.actionCounts.petting_today=(state.actionCounts.petting_today||0)+1;state.impactX=2.6;state.impactY=-1.2;if(effective){checkTreasure('petting');remember('petting');state.mood='love';state.dist='near';state.comfort=clamp(state.comfort+8+state.longMemory.petting_relief*.08,0,100);state.trust=clamp(state.trust+4,0,100);state.cleanliness=clamp(state.cleanliness+1,0,100);updateGrowthByCare('pet');refreshColorFromGrowth();showBubble(getPetReaction());checkDailyTasks();checkBadges();checkAchievements();}else{showBubble('…');}saveState();}
+function doFeed(foodId){ state.impactX=1.8; state.impactY=-.8; noteFeedNow(); state.actionCounts.feeding_today=(state.actionCounts.feeding_today||0)+1;state.actionCounts.feeding=(state.actionCounts.feeding||0)+1;checkTreasure('feeding');remember('feeding');state.mood='happy';state.dist='near';const foods=getAvailableFoods();const food=foods.find(f=>f.id===foodId) || foods.find(f=>f.id===state.currentFoodId) || pick(foods);state.currentFoodId=food.id;state.hunger=clamp(state.hunger-(food.hungerVal + state.longMemory.feeding_trust*.05),0,100);const p=getPersonality();const isFav = p.favCategory && food.category===p.favCategory;const isDislike = p.dislike && food.category===p.dislike;const mult = isFav ? 1.0 : isDislike ? 0.3 : 0.6;state.comfort=clamp(state.comfort+Math.round(food.comfortVal*mult),0,100);state.trust=clamp(state.trust+Math.round(food.trustVal*mult),0,100);const bonus=getMealBonus();const today=new Date().toDateString();let reaction=`${food.emoji} ` + getFeedReaction(food); if (bonus) { const alreadyDone=(bonus.type==='morning'&&state.lastMorningFeed===today)||(bonus.type==='evening'&&state.lastEveningFeed===today); if(!alreadyDone){ state.hunger=clamp(state.hunger-bonus.hungerBonus,0,100); state.trust=clamp(state.trust+bonus.trustBonus,0,100); if(bonus.type==='morning') state.lastMorningFeed=today; if(bonus.type==='evening') state.lastEveningFeed=today; reaction = bonus.type==='morning' ? 'おはよう…🍚' : 'ただいま…🍛'; } } updateGrowthByCare('feed',{foodCategory:food.category,isFav,isDislike});refreshColorFromGrowth(); showBubble(reaction); closeFoodMenu(); checkDailyTasks(); checkBadges(); checkAchievements(); saveState();}
+function doWipe(){state.impactX=1.5; state.impactY=-.5;state.actionCounts.cleaning_today=(state.actionCounts.cleaning_today||0)+1;countEffectiveAction('wipe');checkTreasure('cleaning');remember('cleaning');state.cleanliness=100;state.comfort=clamp(state.comfort+9+state.longMemory.cleaning_relief*.08,0,100);state.mood=state.shortMemory.neglect>40?'love':'idle';state.dist=state.mood==='love'?'near':'mid';const showerBonus=getShowerBonus();const today=new Date().toDateString();let reaction='🧼✨'; if(showerBonus && state.lastNightWipe!==today){ state.lastNightWipe=today; state.comfort=clamp(state.comfort+showerBonus.comfortBonus,0,100); state.trust=clamp(state.trust+showerBonus.trustBonus,0,100); reaction='💦🌙'; } updateGrowthByCare('wipe');refreshColorFromGrowth(); showBubble(reaction); checkDailyTasks(); checkBadges(); checkAchievements(); saveState();}
+function checkTreasureForeshadow(){ TREASURES.forEach(t => { if(state.collection.includes(t.id)) return; const current = state.actionCounts[t.condition.type] || 0; const remaining = t.condition.count - current; if(remaining > 0 && remaining <= 3 && Math.random() > 0.94) showBubble('…'); }); }
+function tickWorld(){state.hunger=clamp(state.hunger+1.4,0,100);state.comfort=clamp(state.comfort-.9,0,100);state.cleanliness=clamp(state.cleanliness-.6,0,100);decayMemory();tickHealthFlag();decideOverlay();decideMood();setCPU();const overlayOpen=document.getElementById('reportDrawer').classList.contains('show')||document.getElementById('summaryPanel').classList.contains('show')||document.getElementById('historyPanel').classList.contains('show')||document.getElementById('ritualPanel').classList.contains('show')||document.getElementById('foodMenuOverlay').classList.contains('show')||document.getElementById('tutorialOverlay').style.pointerEvents==='auto';if(!overlayOpen&&Math.random()>.8) showBubble(pickSignal());if(!overlayOpen) checkTreasureForeshadow();checkDailyTasks();checkBadges();checkAchievements();checkTrustStageUp();updateMofuBtn();saveState();}
+function initStars() {
+  const host = document.getElementById('stars');
+  if(!host) return;
+  host.innerHTML = '';
+  const isNight = nowPhase() === '夜';
+  if (!isNight) return;
+  for (let i = 0; i < 24; i++) {
+    const star = document.createElement('div');
+    star.className = 'star';
+    const size = Math.random() * 2 + 1;
+    star.style.width = `${size}px`;
+    star.style.height = `${size}px`;
+    star.style.left = `${Math.random() * 100}%`;
+    star.style.top = `${Math.random() * 40}%`;
+    star.style.setProperty('--d', `${3 + Math.random() * 4}s`);
+    star.style.animationDelay = `${Math.random() * 5}s`;
+    host.appendChild(star);
+  }
+}
+function checkTreasure(type){
+  const treasure = TREASURES.find(t => t.condition.type === type && t.condition.count === state.actionCounts[type]);
+  if (treasure && !state.collection.includes(treasure.id)) {
+    state.collection.push(treasure.id);
+    renderHistory();
+    saveState();
+    setTimeout(() => {
+      showReport('★ 宝物を見つけた！', `モコロンが「${treasure.name}」を届けてくれました。
+${treasure.hint}`);
+      state.mood = 'happy';
+      checkBadges();
+    }, 1500);
+    return true;
+  }
+  return false;
+}
+
+function registerLoginDay() {
+  const today = new Date().toDateString();
+  if (state.lastLoginDate === today) return;
+  state.lastLoginDate = today;
+  state.totalLoginDays = (state.totalLoginDays || 0) + 1;
+  saveState();
+}
+function checkAchievements() {
+  ACHIEVEMENTS.forEach(a => {
+    if ((state.achievementIds||[]).includes(a.id)) return;
+    if (a.cond(state)) {
+      state.achievementIds.push(a.id);
+      setTimeout(() => showReport(`🏆 ${a.label}`, 'モコロンとの記録が、またひとつ増えました。'), 1200);
+      saveState();
+    }
+  });
+}
+function canFeedNow() {
+  const now = Date.now();
+  const today = new Date().toDateString();
+  if (state.feedWindowDate !== today) {
+    state.feedWindowDate = today;
+    state.feedWindowCount = 0;
+  }
+  if ((state.feedWindowCount || 0) < 2) return true;
+  return now - (state.lastFeedAt || 0) >= 3 * 60 * 60 * 1000;
+}
+function noteFeedNow() {
+  const today = new Date().toDateString();
+  if (state.feedWindowDate !== today) {
+    state.feedWindowDate = today;
+    state.feedWindowCount = 0;
+  }
+  state.feedWindowCount = (state.feedWindowCount || 0) + 1;
+  state.lastFeedAt = Date.now();
+}
+
+function updateLastReportBtn() { updateTopButtons(); }
+
+
+const OMIYAGE_LABELS = {
+  o_stone:'白い石ころ', o_feather:'鳥の羽', o_shell:'小さな貝殻', o_acorn:'どんぐり', o_leaf:'きれいな葉っぱ',
+  o_glass:'光るガラス片', o_button:'古いボタン', o_ribbon:'赤いリボン', o_sakura:'桜の花びら', o_frost:'霜の結晶',
+  o_chestnut:'栗', o_snowball:'雪のかけら', o_snail:'かたつむり跡', o_cicada:'セミのぬけがら'
+};
+function updateTopButtons(){
+  const canShow = !!state.tutorialDone;
+  const lastBtn = document.getElementById('btnLastReport');
+  const historyBtn = document.getElementById('historyBtn');
+  if(lastBtn) lastBtn.style.display = canShow && state.lastReport ? 'block' : 'none';
+  if(historyBtn) historyBtn.style.display = canShow ? 'block' : 'none';
+}
+function updateGroundHint(forceSwap = false) {
+  const hint = document.getElementById('groundHint');
+  const labelEl = document.getElementById('groundHintLabel');
+  if (!hint || !labelEl) return;
+
+  const bag = (state.omiyageBag || []).filter(id => OMIYAGE_LABELS[id]);
+  if (!state.tutorialDone || !bag.length) {
+    hint.classList.remove('show');
+    return;
+  }
+
+  const now = Date.now();
+  if (forceSwap || !state.lastGroundHintSwap || now - state.lastGroundHintSwap > 3500) {
+    state.groundHintIndex = ((state.groundHintIndex || 0) + 1) % bag.length;
+    state.lastGroundHintSwap = now;
+  }
+
+  const id = bag[state.groundHintIndex % bag.length];
+  labelEl.textContent = OMIYAGE_LABELS[id] || '';
+  hint.classList.add('show');
+}
+
+
+function countEffectiveAction(type) {
+  const today = new Date().toDateString();
+  const dateKey = `${type}EffectiveDate`;
+  const countKey = `${type}EffectiveCount`;
+  const limits = { pet: PET_DAILY_EFFECTIVE_LIMIT, wipe: 2, petting: PET_DAILY_EFFECTIVE_LIMIT };
+  const limit = limits[type] || 2;
+
+  if (state[dateKey] !== today) {
+    state[dateKey] = today;
+    state[countKey] = 0;
+  }
+  if ((state[countKey] || 0) < limit) {
+    if (type === 'pet' || type === 'petting') state.actionCounts.petting = (state.actionCounts.petting || 0) + 1;
+    if (type === 'wipe') state.actionCounts.cleaning = (state.actionCounts.cleaning || 0) + 1;
+    state[countKey]++;
+    return true;
+  }
+  return false;
+}
+
+function updateBlink(dt){
+  state.blinkTimer += dt/16.67;
+  if(state.isBlinking){
+    if(state.blinkTimer >= 6){
+      state.isBlinking = false;
+      state.blinkTimer = 0;
+      if(state.doubleBlinkQueued){
+        state.doubleBlinkQueued = false;
+        state.nextBlinkAt = 4 + Math.random()*6;
+      }else{
+        state.nextBlinkAt = 70 + Math.random()*130;
+      }
+    }
+    return;
+  }
+  if(state.blinkTimer >= state.nextBlinkAt){
+    state.isBlinking = true;
+    state.blinkTimer = 0;
+    state.doubleBlinkQueued = Math.random() > 0.72;
+  }
+}
+
+function bindUI(){
+  document.getElementById('btnPet').addEventListener('click',doPet);
+  document.getElementById('btnFeed').addEventListener('click',openFoodMenu);
+  document.getElementById('btnWipe').addEventListener('click',doWipe);
+  document.getElementById('btnMofu').addEventListener('click',doMofu);
+  document.getElementById('hitArea').addEventListener('click',doPet);
+  document.getElementById('reportDrawer').addEventListener('click',()=>{
+    document.getElementById('reportDrawer').classList.remove('show');
+    if(state.pendingSummary){
+      state.pendingSummary = false;
+      showTodaySummary();
+      saveState();
+    } else if(state.pendingRitual){
+      openRitualPanel();
+      state.pendingRitual = false;
+    }
+  });
+  document.getElementById('btnLastReport').addEventListener('click',()=>{ if(!state.lastReport){ showBubble('…'); return; } document.getElementById('reportShort').textContent=state.lastReport.short; document.getElementById('reportDetail').textContent=String(state.lastReport.detail).replace(/。/g, '。\n').replace(/\n+/g, '\n').trim(); document.getElementById('reportDrawer').classList.add('show'); });
+  document.getElementById('historyBtn').addEventListener('click',()=>{
+    renderHistory();
+    document.getElementById('historyPanel').classList.add('show');
+  });
+  document.getElementById('historyPanel').addEventListener('click',()=>document.getElementById('historyPanel').classList.remove('show'));
+  document.getElementById('summaryPanel').addEventListener('click',()=>{ document.getElementById('summaryPanel').classList.remove('show'); });
+  document.getElementById('tutorialNext').addEventListener('click', advanceTutorial);
+  document.getElementById('foodMenuOverlay').addEventListener('click', closeFoodMenu);
+  document.getElementById('foodMenuSheet').addEventListener('click',(e)=>e.stopPropagation());
+  document.getElementById('ritualAction').addEventListener('click',(e)=>{ e.stopPropagation(); runRitualAction(); });
+  document.getElementById('ritualPanel').addEventListener('click',()=>document.getElementById('ritualPanel').classList.remove('show'));
+  document.getElementById('ritualCard').addEventListener('click',(e)=>e.stopPropagation());
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') {
+      wasHidden = true;
+      saveState();
+      return;
+    }
+    if (document.visibilityState === 'visible' && wasHidden) {
+      wasHidden = false;
+      onReturn();
+    }
+  });
+  window.addEventListener('load', () => {
+    appBooted = true;
+    decideMood();
+    updateDistanceLayout();
+    drawMokoron();
+    setTimeout(() => onReturn(), 450);
+  });
+  window.addEventListener('beforeunload', saveState);
+  window.addEventListener('pagehide', saveState);
+}
+function loop(ts){if(!state.lastTs)state.lastTs=ts;const dt=ts-state.lastTs;state.lastTs=ts;state.breath+=0.05;state.tailWave+=0.13;state.cloudPhase+=(state.weather==='晴れ'?0.008:0.003);updateBlink(dt);const distTiltMap={near:2.4,mid:.8,far:-1.6,corner:-2.4};state.targetEarTilt=(distTiltMap[state.dist]||0)+(state.mood==='happy'?1.2:0)+(state.mood==='love'?.8:0)+(state.mood==='sleep'?-1.4:0)+(state.impactX||0)*0.5;state.earTilt+=(state.targetEarTilt-state.earTilt)*0.16;state.tailLag+=(((state.targetEarTilt*0.45)-(state.tailLag||0))*0.12);state.impactX*=0.78;state.impactY*=0.78;const app=document.getElementById('app');if(app){if(state.weather==='晴れ'){app.classList.add('cloud-pass');}else{app.classList.remove('cloud-pass');}}const anim=getAnim();if(ts%(anim.speed*4)<dt*4){state.frame++;drawMokoron();updateDistanceLayout();updateGroundHint();}requestAnimationFrame(loop);}
+function initGrass(){const grass=document.getElementById('grassFront');for(let i=0;i<170;i++){const blade=document.createElement('div');blade.className=Math.random()>.86?'blade wheat':Math.random()>.44?'blade dark':'blade';blade.style.left=(Math.random()*100)+'%';blade.style.height=(14+Math.random()*72)+'px';blade.style.animationDelay=(-Math.random()*3.6)+'s';blade.style.opacity=(.42+Math.random()*.5).toFixed(2);grass.appendChild(blade);}const fence=document.getElementById('fence');for(let i=0;i<12;i++){const p=document.createElement('div');p.className='post';p.style.left=(3+i*8.5)+'%';fence.appendChild(p);}}
+loadState();generatePersonality();registerLoginDay();checkConsecutiveDays();applyMokoronPalette(state.currentColorId || 'plain_white');decideMood();bindUI();updateTopButtons();updateGroundHint(true);initGrass();initStars();setWeather(state.weather||'晴れ');generateTomorrowWeather();setCPU();updateDistanceLayout();drawMokoron();renderHistory();updateMofuBtn();requestAnimationFrame(loop);if(!state.tutorialDone) showTutorial(); setInterval(tickWorld,5000);setInterval(()=>{
+  if(isDeepNight()){
+    if(state.mood!=='love'&&state.mood!=='happy'){
+      state.mood='sleep';
+      state.dist=state.trust>70?'far':'corner';
+    }
+    updateDistanceLayout();
+    return;
+  }
+  if(state.mood==='idle'&&state.hunger<60&&Math.random()>.6){
+    state.mood='drowsy';
+    state.dist=state.trust>66?'mid':'far';
+    setTimeout(()=>{
+      if(state.mood==='drowsy' && !isDeepNight()){
+        state.mood='sleep';
+        state.dist=state.trust>70?'far':'corner';
+      }
+    },2600);
+  }else if(state.mood==='sleep'&&Math.random()>.46){
+    state.mood='idle';
+    state.dist='mid';
+  }
+  updateRoaming();
+},9000);
+</script>
+</body>
+</html>
